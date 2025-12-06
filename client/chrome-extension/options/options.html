@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>插件设置</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <div class="container">
+    <h2>任务通知插件设置</h2>
+
+    <form id="configForm">
+      <div class="form-group">
+        <label for="serverUrl">服务器地址</label>
+        <input
+          type="text"
+          id="serverUrl"
+          placeholder="http://192.168.1.100:5000"
+          required
+        />
+        <small>例如: http://192.168.1.100:5000</small>
+      </div>
+
+      <div class="form-group">
+        <label for="umCode">用户编号(UM编号)</label>
+        <input
+          type="text"
+          id="umCode"
+          placeholder="UM001"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label>
+          <input type="checkbox" id="soundEnabled" checked />
+          启用提示音
+        </label>
+      </div>
+
+      <button type="submit" class="btn-primary">保存设置</button>
+    </form>
+
+    <div id="message" class="message"></div>
+  </div>
+
+  <script src="options.js"></script>
+</body>
+</html>

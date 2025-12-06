@@ -1,0 +1,38 @@
+# Python
+backend/__pycache__/
+backend/*.py[cod]
+backend/venv/
+backend/env/
+backend/*.db
+backend/*.sqlite
+backend/logs/
+backend/uploads/
+backend/.env
+
+# Node
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+taskmanager.db
+
+# Logs
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Migrations (可选)
+backend/migrations/versions/*.py
+!backend/migrations/versions/.gitkeep
