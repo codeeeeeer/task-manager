@@ -26,9 +26,9 @@ def get_all_users():
 
 
 @users_bp.route('', methods=['GET'])
-@admin_required
+@login_required
 def get_users():
-    """获取用户列表（管理员）"""
+    """获取用户列表"""
     try:
         page = request.args.get('page', 1, type=int)
         per_page = request.args.get('per_page', 20, type=int)

@@ -4,7 +4,7 @@
 from app import db
 from app.models.base import BaseModel
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 class User(BaseModel):
@@ -18,8 +18,8 @@ class User(BaseModel):
     password_hash = db.Column(db.String(255), nullable=False, comment='密码哈希')
     is_admin = db.Column(db.Boolean, default=False, comment='是否管理员')
     is_active = db.Column(db.Boolean, default=True, index=True, comment='是否激活')
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, comment='创建时间')
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, comment='更新时间')
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), comment='创建时间')
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), comment='更新时间')
     last_login_at = db.Column(db.DateTime, comment='最后登录时间')
 
     # 关系

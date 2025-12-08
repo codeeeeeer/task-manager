@@ -4,7 +4,7 @@
 from app import db
 from app.models.user import User
 from sqlalchemy.exc import IntegrityError
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 class UserService:
@@ -21,7 +21,7 @@ class UserService:
         user = User.query.filter_by(email=email, is_active=True).first()
         if user and user.check_password(password):
             # 更新最后登录时间
-            user.last_login_at = datetime.utcnow()
+            user.last_login_at = datetime.now(timezone.utc)
             db.session.commit()
             return user
         return None

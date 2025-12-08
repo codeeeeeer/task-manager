@@ -3,7 +3,7 @@
 """
 from app import db
 from app.models.base import BaseModel
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 class TaskTransfer(BaseModel):
@@ -16,7 +16,7 @@ class TaskTransfer(BaseModel):
     target_user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, comment='流转目标用户ID')
     message = db.Column(db.Text, comment='流转留言')
     transfer_type = db.Column(db.String(50), default='流转', nullable=False, comment='流转类型')
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True, comment='创建时间')
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), index=True, comment='创建时间')
 
     # 关系
     operator = db.relationship('User', foreign_keys=[operator_id])

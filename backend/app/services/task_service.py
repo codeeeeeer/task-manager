@@ -5,7 +5,7 @@ from app import db
 from app.models.task import Task
 from app.models.user import User
 from app.models.task_transfer import TaskTransfer
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 class TaskService:
@@ -122,7 +122,7 @@ class TaskService:
 
         task.status = TaskService.STATUS_PROCESSING
         if not task.actual_start_time:
-            task.actual_start_time = datetime.utcnow()
+            task.actual_start_time = datetime.now(timezone.utc)
 
         # 创建流转记录
         transfer = TaskTransfer(
@@ -150,7 +150,7 @@ class TaskService:
 
         task.status = TaskService.STATUS_COMPLETED
         task.progress = 100
-        task.actual_end_time = datetime.utcnow()
+        task.actual_end_time = datetime.now(timezone.utc)
 
         transfer = TaskTransfer(
             task_id=task_id,
@@ -158,6 +158,61 @@ class TaskService:
             target_user_id=task.current_handler_id,
             message=message,
             transfer_type='完成'
+        )
+        db.session.add(transfer)
+        db.session.commit()
+
+        return task
+
+    @staticmethod
+    def suspend_task(task_id, user_id, message=''):
+        """挂起任务"""
+        task = Task.query.get(task_id)
+        if not task:
+            raise ValueError("任务不存在")
+
+        user = User.query.get(user_id)
+        if not user.is_admin and task.current_handler_id != user_id:
+            raise PermissionError("只有当前处理人或管理员可以挂起任务")
+
+        if task.status != TaskService.STATUS_PROCESSING:
+            raise ValueError(f"任务当前状态({task.status})不允许挂起")
+
+        task.status = TaskService.STATUS_SUSPENDED
+
+        transfer = TaskTransfer(
+            task_id=task_id,
+            operator_id=user_id,
+            target_user_id=task.current_handler_id,
+            message=message,
+            transfer_type='挂起'
+        )
+        db.session.add(transfer)
+        db.session.commit()
+
+        return task
+
+    @staticmethod
+    def close_task(task_id, user_id, message=''):
+        """关闭任务"""
+        task = Task.query.get(task_id)
+        if not task:
+            raise ValueError("任务不存在")
+
+        user = User.query.get(user_id)
+        if not user.is_admin and task.current_handler_id != user_id:
+            raise PermissionError("只有当前处理人或管理员可以关闭任务")
+
+        task.status = TaskService.STATUS_CLOSED
+        if not task.actual_end_time:
+            task.actual_end_time = datetime.now(timezone.utc)
+
+        transfer = TaskTransfer(
+            task_id=task_id,
+            operator_id=user_id,
+            target_user_id=task.current_handler_id,
+            message=message,
+            transfer_type='关闭'
         )
         db.session.add(transfer)
         db.session.commit()

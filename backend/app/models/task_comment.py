@@ -3,7 +3,7 @@
 """
 from app import db
 from app.models.base import BaseModel
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 class TaskComment(BaseModel):
@@ -14,8 +14,8 @@ class TaskComment(BaseModel):
     task_id = db.Column(db.Integer, db.ForeignKey('tasks.id', ondelete='CASCADE'), nullable=False, index=True, comment='任务ID')
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, comment='留言人ID')
     content = db.Column(db.Text, nullable=False, comment='留言内容')
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, comment='创建时间')
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, comment='更新时间')
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), comment='创建时间')
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), comment='更新时间')
     is_deleted = db.Column(db.Boolean, default=False, comment='软删除标记')
 
     # 关系

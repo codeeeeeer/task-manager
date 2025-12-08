@@ -3,7 +3,7 @@
 """
 from app import db
 from app.models.base import BaseModel
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 class Task(BaseModel):
@@ -26,8 +26,8 @@ class Task(BaseModel):
     actual_start_time = db.Column(db.DateTime, comment='实际开始时间')
     actual_end_time = db.Column(db.DateTime, comment='实际完成时间')
 
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True, comment='创建时间')
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, comment='更新时间')
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), index=True, comment='创建时间')
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), comment='更新时间')
 
     # 关系
     transfers = db.relationship('TaskTransfer', backref='task', lazy='dynamic', cascade='all, delete-orphan')
@@ -45,7 +45,7 @@ class Task(BaseModel):
         if not self.expected_start_time or not self.expected_end_time:
             return 0
 
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
 
         if now < self.expected_start_time:
             return 0

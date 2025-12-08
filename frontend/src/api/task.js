@@ -67,3 +67,19 @@ export function createComment(taskId, data) {
     data
   })
 }
+
+export function suspendTask(taskId, data) {
+  return request({
+    url: `/tasks/${taskId}/suspend`,
+    method: 'post',
+    data
+  })
+}
+
+export function closeTask(taskId, data) {
+  return request({
+    url: `/tasks/${taskId}/close`,
+    method: 'post',
+    data
+  })
+}

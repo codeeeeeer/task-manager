@@ -221,3 +221,45 @@ def create_comment(task_id):
 
     except Exception as e:
         return error_response(str(e), code=500, status_code=500)
+
+
+@tasks_bp.route('/<int:task_id>/suspend', methods=['POST'])
+@login_required
+def suspend_task(task_id):
+    """挂起任务"""
+    try:
+        current_user = get_current_user()
+        data = request.get_json() or {}
+        message = data.get('message', '')
+
+        task = TaskService.suspend_task(task_id, current_user.id, message)
+
+        return success_response(task.to_dict(), message='任务已挂起')
+
+    except PermissionError as e:
+        return error_response(str(e), code=403, status_code=403)
+    except ValueError as e:
+        return error_response(str(e))
+    except Exception as e:
+        return error_response(str(e), code=500, status_code=500)
+
+
+@tasks_bp.route('/<int:task_id>/close', methods=['POST'])
+@login_required
+def close_task(task_id):
+    """关闭任务"""
+    try:
+        current_user = get_current_user()
+        data = request.get_json() or {}
+        message = data.get('message', '')
+
+        task = TaskService.close_task(task_id, current_user.id, message)
+
+        return success_response(task.to_dict(), message='任务已关闭')
+
+    except PermissionError as e:
+        return error_response(str(e), code=403, status_code=403)
+    except ValueError as e:
+        return error_response(str(e))
+    except Exception as e:
+        return error_response(str(e), code=500, status_code=500)
