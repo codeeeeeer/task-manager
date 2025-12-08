@@ -24,8 +24,16 @@
       </el-descriptions>
 
       <div class="task-description">
-        <h3>任务描述</h3>
-        <div class="description-content">{{ task.description }}</div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+          <h3 style="margin: 0;">任务描述</h3>
+          <el-button v-if="canEdit && !isEditingDesc" size="small" @click="startEditDesc">编辑</el-button>
+          <div v-if="isEditingDesc">
+            <el-button size="small" @click="cancelEditDesc">取消</el-button>
+            <el-button size="small" type="primary" @click="saveDesc">保存</el-button>
+          </div>
+        </div>
+        <div v-if="!isEditingDesc" class="description-content" v-html="task.description"></div>
+        <QuillEditor v-else v-model:content="editDesc" contentType="html" theme="snow" style="height: 300px" />
       </div>
 
       <div class="task-transfers">
@@ -83,8 +91,10 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { getTaskDetail, respondTask, transferTask, suspendTask, completeTask, closeTask, getTaskTransfers, getTaskComments, createComment } from '@/api/task'
+import { getTaskDetail, respondTask, transferTask, suspendTask, completeTask, closeTask, getTaskTransfers, getTaskComments, createComment, updateTask } from '@/api/task'
 import { getUsers } from '@/api/user'
+import { QuillEditor } from '@vueup/vue-quill'
+import '@vueup/vue-quill/dist/vue-quill.snow.css'
 
 const route = useRoute()
 const task = ref(null)
@@ -94,6 +104,8 @@ const users = ref([])
 const newComment = ref('')
 const showTransferDialog = ref(false)
 const transferForm = ref({ target_user_id: null, message: '' })
+const isEditingDesc = ref(false)
+const editDesc = ref('')
 
 const currentUser = computed(() => JSON.parse(localStorage.getItem('user_info') || '{}'))
 
@@ -125,6 +137,11 @@ const canClose = computed(() => {
   if (!task.value) return false
   return (task.value.current_handler_id === currentUser.value.id || currentUser.value.is_admin) &&
     task.value.status !== '关闭'
+})
+
+const canEdit = computed(() => {
+  if (!task.value) return false
+  return task.value.current_handler_id === currentUser.value.id || currentUser.value.is_admin
 })
 
 const formatTime = (time) => {
@@ -241,6 +258,27 @@ const handleAddComment = async () => {
   }
 }
 
+const startEditDesc = () => {
+  editDesc.value = task.value.description || ''
+  isEditingDesc.value = true
+}
+
+const cancelEditDesc = () => {
+  isEditingDesc.value = false
+  editDesc.value = ''
+}
+
+const saveDesc = async () => {
+  try {
+    await updateTask(route.params.id, { description: editDesc.value })
+    ElMessage.success('任务描述已更新')
+    isEditingDesc.value = false
+    await loadTask()
+  } catch (error) {
+    ElMessage.error(error.message || '更新失败')
+  }
+}
+
 onMounted(() => {
   loadTask()
   loadTransfers()
@@ -282,7 +320,11 @@ onMounted(() => {
       background: #fff5f0;
       border-radius: 4px;
       line-height: 1.6;
-      white-space: pre-wrap;
+      min-height: 100px;
+    }
+
+    :deep(.ql-container) {
+      height: 300px;
     }
   }
 

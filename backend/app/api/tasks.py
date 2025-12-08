@@ -52,6 +52,33 @@ def get_task(task_id):
         return error_response(str(e), code=500, status_code=500)
 
 
+@tasks_bp.route('/<int:task_id>', methods=['PUT'])
+@login_required
+def update_task(task_id):
+    """更新任务"""
+    try:
+        current_user = get_current_user()
+        task = TaskService.get_task_by_id(task_id)
+
+        if not task:
+            return error_response('任务不存在', code=404, status_code=404)
+
+        if not current_user.is_admin and task.current_handler_id != current_user.id:
+            return error_response('只有当前处理人或管理员可以编辑任务', code=403, status_code=403)
+
+        data = request.get_json()
+        if 'description' in data:
+            task.description = data['description']
+
+        from app import db
+        db.session.commit()
+
+        return success_response(task.to_dict(include_details=True), message='任务更新成功')
+
+    except Exception as e:
+        return error_response(str(e), code=500, status_code=500)
+
+
 @tasks_bp.route('', methods=['POST'])
 @login_required
 def create_task():

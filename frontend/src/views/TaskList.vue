@@ -102,7 +102,7 @@
     />
 
     <!-- 新建任务对话框 -->
-    <el-dialog v-model="showCreateDialog" title="新建任务" width="600px" @close="resetCreateForm">
+    <el-dialog v-model="showCreateDialog" title="新建任务" width="700px" @close="resetCreateForm">
       <el-form :model="createForm" :rules="createRules" ref="createFormRef" label-width="120px">
         <el-form-item label="任务标题" prop="title">
           <el-input v-model="createForm.title" placeholder="请输入任务标题" />
@@ -149,12 +149,9 @@
         </el-form-item>
 
         <el-form-item label="任务描述">
-          <el-input
-            v-model="createForm.description"
-            type="textarea"
-            :rows="5"
-            placeholder="请输入任务描述"
-          />
+          <div style="width: 100%;">
+            <QuillEditor v-model:content="createForm.description" contentType="html" theme="snow" />
+          </div>
         </el-form-item>
       </el-form>
 
@@ -172,6 +169,8 @@ import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { getTasks, createTask } from '@/api/task'
 import { getAllUsers } from '@/api/user'
+import { QuillEditor } from '@vueup/vue-quill'
+import '@vueup/vue-quill/dist/vue-quill.snow.css'
 
 const router = useRouter()
 
@@ -386,6 +385,12 @@ onMounted(() => {
 
   :deep(.el-pagination) {
     display: flex;
+  }
+
+  :deep(.el-dialog__body) {
+    .ql-editor {
+      min-height: 200px;
+    }
   }
 }
 </style>
