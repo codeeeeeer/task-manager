@@ -30,51 +30,52 @@ function loadConfig() {
   })
 }
 
-// 连接WebSocket
+// 轮询间隔ID
+let pollingInterval = null
+
+// 连接WebSocket (改用HTTP轮询)
 function connectWebSocket() {
-  if (ws) {
-    ws.close()
+  if (pollingInterval) {
+    clearInterval(pollingInterval)
   }
 
-  console.log('Connecting to WebSocket:', config.serverUrl)
+  console.log('Starting notification polling:', config.serverUrl)
+  updateBadge('✓', '#4caf50')
 
-  // 注意: Service Worker中无法直接使用socket.io
-  // 需要使用原生WebSocket或提供HTTP轮询作为备选
-  const wsUrl = config.serverUrl.replace('http', 'ws') + '/socket.io/?EIO=4&transport=websocket'
+  // 立即执行一次
+  pollNotifications()
 
-  ws = new WebSocket(wsUrl)
+  // 每30秒轮询一次
+  pollingInterval = setInterval(pollNotifications, 30000)
+}
 
-  ws.onopen = () => {
-    console.log('WebSocket connected')
-    updateBadge('✓', '#4caf50')
+// 轮询通知
+async function pollNotifications() {
+  try {
+    const response = await fetch(`${config.serverUrl}/api/users/notifications?um_code=${config.umCode}`)
 
-    // 发送认证
-    const authMsg = JSON.stringify({
-      type: 'auth',
-      um_code: config.umCode
-    })
-    ws.send(authMsg)
-  }
-
-  ws.onclose = () => {
-    console.log('WebSocket disconnected')
-    updateBadge('✗', '#f44336')
-
-    // 5秒后重连
-    setTimeout(() => {
-      if (config.serverUrl && config.umCode) {
-        connectWebSocket()
-      }
-    }, 5000)
-  }
-
-  ws.onmessage = (event) => {
-    try {
-      const data = JSON.parse(event.data)
-      handleNotification(data)
-    } catch (e) {
-      console.error('Parse message error:', e)
+    if (!response.ok) {
+      throw new Error('Failed to fetch notifications')
     }
+
+    const result = await response.json()
+
+    if (result.code === 0 && result.data) {
+      // 处理新通知
+      const notifications = result.data
+      notifications.forEach(notification => {
+        // 检查是否已经处理过
+        const exists = notificationHistory.find(n => n.id === notification.id)
+        if (!exists) {
+          handleNotification(notification)
+        }
+      })
+    }
+
+    updateBadge('✓', '#4caf50')
+  } catch (error) {
+    console.error('Polling error:', error)
+    updateBadge('✗', '#f44336')
   }
 }
 
@@ -147,11 +148,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === 'GET_NOTIFICATIONS') {
     sendResponse({ notifications: notificationHistory })
   } else if (message.type === 'MARK_AS_READ') {
-    const notification = notificationHistory.find(n => n.timestamp === message.timestamp)
+    const notification = notificationHistory.find(n => n.id === message.id)
     if (notification) {
       notification.read = true
       chrome.storage.local.set({ notificationHistory })
       updateUnreadCount()
+      sendResponse({ success: true })
     }
   } else if (message.type === 'UPDATE_CONFIG') {
     config = message.config
@@ -159,7 +161,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     connectWebSocket()
   } else if (message.type === 'GET_STATUS') {
     sendResponse({
-      connected: ws && ws.readyState === WebSocket.OPEN,
+      connected: pollingInterval !== null,
       config
     })
   }

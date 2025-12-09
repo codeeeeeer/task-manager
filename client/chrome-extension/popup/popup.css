@@ -63,9 +63,34 @@ body {
   background: #fff5f5;
 }
 
+.notification-item.read {
+  opacity: 0.6;
+}
+
+.notification-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
 .notification-title {
   font-weight: 600;
-  margin-bottom: 5px;
+  flex: 1;
+}
+
+.mark-read-btn {
+  padding: 2px 8px;
+  font-size: 11px;
+  border: none;
+  border-radius: 3px;
+  background: #4caf50;
+  color: white;
+  cursor: pointer;
+}
+
+.mark-read-btn:hover {
+  background: #45a049;
 }
 
 .notification-content {

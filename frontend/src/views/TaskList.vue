@@ -2,7 +2,10 @@
   <div class="task-list">
     <div class="header">
       <h2>任务列表</h2>
-      <el-button type="primary" @click="showCreateDialog = true">新建任务</el-button>
+      <div>
+        <el-button type="success" @click="downloadClient">下载Chrome插件</el-button>
+        <el-button type="primary" @click="showCreateDialog = true">新建任务</el-button>
+      </div>
     </div>
 
     <!-- 搜索筛选区 -->
@@ -362,6 +365,12 @@ const getStatusType = (status) => {
     '关闭': 'info'
   }
   return typeMap[status] || 'info'
+}
+
+// 下载Chrome插件
+const downloadClient = () => {
+  const baseURL = import.meta.env.VITE_API_BASE_URL || '/api'
+  window.open(`${baseURL}/tasks/download-client`, '_blank')
 }
 
 onMounted(() => {

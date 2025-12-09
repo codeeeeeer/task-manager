@@ -40,13 +40,46 @@ function loadNotifications() {
       return
     }
 
-    listEl.innerHTML = notifications.slice(0, 10).map(n => `
-      <div class="notification-item ${n.read ? 'read' : 'unread'}">
-        <div class="notification-title">${n.title}</div>
+    listEl.innerHTML = notifications.slice(0, 10).map((n, index) => `
+      <div class="notification-item ${n.read ? 'read' : 'unread'}" data-index="${index}">
+        <div class="notification-header">
+          <div class="notification-title">${n.title}</div>
+          ${!n.read ? `<button class="mark-read-btn" data-id="${n.id}">已阅</button>` : ''}
+        </div>
         <div class="notification-content">${n.content}</div>
-        <div class="notification-time">${formatTime(n.receivedAt)}</div>
+        <div class="notification-time">${formatTime(n.receivedAt || n.timestamp)}</div>
       </div>
     `).join('')
+
+    // 添加已阅按钮点击事件
+    document.querySelectorAll('.mark-read-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation()
+        const id = parseInt(btn.dataset.id)
+        markAsRead(id)
+      })
+    })
+
+    // 添加通知项点击事件（跳转到任务详情）
+    document.querySelectorAll('.notification-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const index = parseInt(item.dataset.index)
+        const notification = notifications[index]
+        if (notification.task_id) {
+          chrome.storage.sync.get(['serverUrl'], (result) => {
+            if (result.serverUrl) {
+              chrome.tabs.create({ url: `${result.serverUrl}/#/tasks/${notification.task_id}` })
+            }
+          })
+        }
+      })
+    })
+  })
+}
+
+function markAsRead(id) {
+  chrome.runtime.sendMessage({ type: 'MARK_AS_READ', id: id }, () => {
+    loadNotifications()
   })
 }
 

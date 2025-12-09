@@ -42,23 +42,28 @@ class Task(BaseModel):
 
     def calculate_time_progress(self):
         """计算时间进度"""
-        if not self.expected_start_time or not self.expected_end_time:
+        try:
+            if not self.expected_start_time or not self.expected_end_time:
+                return 0
+
+            now = datetime.now(timezone.utc)
+
+            # 确保时间对象都带时区信息
+            start_time = self.expected_start_time.replace(tzinfo=timezone.utc) if self.expected_start_time.tzinfo is None else self.expected_start_time
+            end_time = self.expected_end_time.replace(tzinfo=timezone.utc) if self.expected_end_time.tzinfo is None else self.expected_end_time
+
+            if now < start_time:
+                return 0
+            elif now > end_time:
+                return 100
+            else:
+                total_duration = (end_time - start_time).total_seconds()
+                if total_duration <= 0:
+                    return 0
+                elapsed_duration = (now - start_time).total_seconds()
+                return int((elapsed_duration / total_duration) * 100)
+        except Exception:
             return 0
-
-        now = datetime.now(timezone.utc)
-
-        # 确保时间对象都带时区信息
-        start_time = self.expected_start_time.replace(tzinfo=timezone.utc) if self.expected_start_time.tzinfo is None else self.expected_start_time
-        end_time = self.expected_end_time.replace(tzinfo=timezone.utc) if self.expected_end_time.tzinfo is None else self.expected_end_time
-
-        if now < start_time:
-            return 0
-        elif now > end_time:
-            return 100
-        else:
-            total_duration = (end_time - start_time).total_seconds()
-            elapsed_duration = (now - start_time).total_seconds()
-            return int((elapsed_duration / total_duration) * 100)
 
     def to_dict(self, include_details=False):
         """转换为字典"""

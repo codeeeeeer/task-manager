@@ -404,3 +404,32 @@ def download_attachment(task_id, attachment_id):
 
     except Exception as e:
         return error_response(str(e), code=500, status_code=500)
+
+
+@tasks_bp.route('/download-client', methods=['GET'])
+def download_client():
+    """下载Chrome插件客户端"""
+    try:
+        import zipfile
+        import tempfile
+        from pathlib import Path
+
+        # Chrome插件源码路径
+        client_path = Path(__file__).parent.parent.parent.parent / 'client' / 'chrome-extension'
+
+        if not client_path.exists():
+            return error_response('客户端文件不存在', code=404, status_code=404)
+
+        # 创建临时zip文件
+        temp_zip = tempfile.NamedTemporaryFile(delete=False, suffix='.zip')
+
+        with zipfile.ZipFile(temp_zip.name, 'w', zipfile.ZIP_DEFLATED) as zipf:
+            for file_path in client_path.rglob('*'):
+                if file_path.is_file():
+                    arcname = file_path.relative_to(client_path.parent)
+                    zipf.write(file_path, arcname)
+
+        return send_file(temp_zip.name, as_attachment=True, download_name='task-manager-chrome-extension.zip')
+
+    except Exception as e:
+        return error_response(str(e), code=500, status_code=500)
