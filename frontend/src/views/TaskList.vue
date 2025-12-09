@@ -97,7 +97,7 @@
       :total="pagination.total"
       layout="total, sizes, prev, pager, next, jumper"
       @size-change="handleSearch"
-      @current-change="handleSearch"
+      @current-change="loadTasks"
       style="margin-top: 20px; justify-content: flex-end"
     />
 
