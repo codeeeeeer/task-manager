@@ -47,13 +47,17 @@ class Task(BaseModel):
 
         now = datetime.now(timezone.utc)
 
-        if now < self.expected_start_time:
+        # 确保时间对象都带时区信息
+        start_time = self.expected_start_time.replace(tzinfo=timezone.utc) if self.expected_start_time.tzinfo is None else self.expected_start_time
+        end_time = self.expected_end_time.replace(tzinfo=timezone.utc) if self.expected_end_time.tzinfo is None else self.expected_end_time
+
+        if now < start_time:
             return 0
-        elif now > self.expected_end_time:
+        elif now > end_time:
             return 100
         else:
-            total_duration = (self.expected_end_time - self.expected_start_time).total_seconds()
-            elapsed_duration = (now - self.expected_start_time).total_seconds()
+            total_duration = (end_time - start_time).total_seconds()
+            elapsed_duration = (now - start_time).total_seconds()
             return int((elapsed_duration / total_duration) * 100)
 
     def to_dict(self, include_details=False):
@@ -66,7 +70,7 @@ class Task(BaseModel):
             'category': self.category,
             'status': self.status,
             'progress': self.progress,
-            'time_progress': self.time_progress,
+            'time_progress': self.calculate_time_progress(),
             'creator_id': self.creator_id,
             'creator_name': self.creator.name if self.creator else None,
             'current_handler_id': self.current_handler_id,

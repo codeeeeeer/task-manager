@@ -73,6 +73,8 @@ def update_task(task_id):
         data = request.get_json()
         if 'description' in data:
             task.description = data['description']
+        if 'progress' in data:
+            task.progress = data['progress']
 
         from app import db
         db.session.commit()

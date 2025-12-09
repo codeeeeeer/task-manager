@@ -3,8 +3,9 @@
     <div v-if="task">
       <h2>{{ task.title }}</h2>
 
-      <div class="action-buttons" v-if="canRespond || canTransfer || canSuspend || canComplete || canClose">
+      <div class="action-buttons" v-if="canRespond || canTransfer || canSuspend || canComplete || canClose || canEdit">
         <el-button v-if="canRespond" type="primary" @click="handleRespond">响应</el-button>
+        <el-button v-if="canEdit" type="primary" @click="showProgressDialog = true">更新进度</el-button>
         <el-button v-if="canTransfer" type="warning" @click="showTransferDialog = true">转派</el-button>
         <el-button v-if="canSuspend" type="info" @click="handleSuspend">挂起</el-button>
         <el-button v-if="canComplete" type="success" @click="handleComplete">完成</el-button>
@@ -115,6 +116,18 @@
         <el-button type="primary" @click="handleTransfer">确定</el-button>
       </template>
     </el-dialog>
+
+    <el-dialog v-model="showProgressDialog" title="更新进度" width="400px">
+      <el-form label-width="80px">
+        <el-form-item label="当前进度">
+          <el-slider v-model="progressValue" :marks="{ 0: '0%', 25: '25%', 50: '50%', 75: '75%', 100: '100%' }" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="showProgressDialog = false">取消</el-button>
+        <el-button type="primary" @click="handleUpdateProgress">确定</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -137,6 +150,8 @@ const users = ref([])
 const newComment = ref('')
 const showTransferDialog = ref(false)
 const transferForm = ref({ target_user_id: null, message: '' })
+const showProgressDialog = ref(false)
+const progressValue = ref(0)
 const isEditingDesc = ref(false)
 const editDesc = ref('')
 
@@ -194,6 +209,7 @@ const loadTask = async () => {
   try {
     const taskId = route.params.id
     task.value = await getTaskDetail(taskId)
+    progressValue.value = task.value.progress || 0
   } catch (error) {
     ElMessage.error('加载任务详情失败')
   }
@@ -260,6 +276,17 @@ const handleTransfer = async () => {
     await loadTransfers()
   } catch (error) {
     ElMessage.error(error.message || '流转失败')
+  }
+}
+
+const handleUpdateProgress = async () => {
+  try {
+    await updateTask(route.params.id, { progress: progressValue.value })
+    ElMessage.success('进度更新成功')
+    showProgressDialog.value = false
+    await loadTask()
+  } catch (error) {
+    ElMessage.error(error.message || '更新失败')
   }
 }
 
