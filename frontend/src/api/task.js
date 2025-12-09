@@ -91,3 +91,32 @@ export function updateTask(taskId, data) {
     data
   })
 }
+
+export function getAttachments(taskId) {
+  return request({
+    url: `/tasks/${taskId}/attachments`,
+    method: 'get'
+  })
+}
+
+export function uploadAttachment(taskId, file) {
+  const formData = new FormData()
+  formData.append('file', file)
+  return request({
+    url: `/tasks/${taskId}/attachments`,
+    method: 'post',
+    data: formData,
+    headers: { 'Content-Type': 'multipart/form-data' }
+  })
+}
+
+export function deleteAttachment(taskId, attachmentId) {
+  return request({
+    url: `/tasks/${taskId}/attachments/${attachmentId}`,
+    method: 'delete'
+  })
+}
+
+export function downloadAttachment(taskId, attachmentId) {
+  return `/api/tasks/${taskId}/attachments/${attachmentId}/download`
+}

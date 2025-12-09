@@ -1,12 +1,16 @@
 """
 任务管理API
 """
-from flask import Blueprint, request
+from flask import Blueprint, request, send_file
 from app.services.task_service import TaskService
 from app.utils.response import success_response, error_response, login_required, get_current_user
 from app.models.task_transfer import TaskTransfer
 from app.models.task_comment import TaskComment
+from app.models.task_attachment import TaskAttachment
 from datetime import datetime
+from werkzeug.utils import secure_filename
+import os
+from app import db
 
 tasks_bp = Blueprint('tasks', __name__)
 
@@ -288,5 +292,113 @@ def close_task(task_id):
         return error_response(str(e), code=403, status_code=403)
     except ValueError as e:
         return error_response(str(e))
+    except Exception as e:
+        return error_response(str(e), code=500, status_code=500)
+
+
+@tasks_bp.route('/<int:task_id>/attachments', methods=['GET'])
+@login_required
+def get_attachments(task_id):
+    """获取任务附件列表"""
+    try:
+        task = TaskService.get_task_by_id(task_id)
+        if not task:
+            return error_response('任务不存在', code=404, status_code=404)
+
+        attachments = TaskAttachment.query.filter_by(task_id=task_id).order_by(TaskAttachment.created_at.desc()).all()
+        return success_response([a.to_dict() for a in attachments])
+
+    except Exception as e:
+        return error_response(str(e), code=500, status_code=500)
+
+
+@tasks_bp.route('/<int:task_id>/attachments', methods=['POST'])
+@login_required
+def upload_attachment(task_id):
+    """上传任务附件"""
+    try:
+        current_user = get_current_user()
+        task = TaskService.get_task_by_id(task_id)
+        if not task:
+            return error_response('任务不存在', code=404, status_code=404)
+
+        if 'file' not in request.files:
+            return error_response('没有上传文件')
+
+        file = request.files['file']
+        if file.filename == '':
+            return error_response('文件名为空')
+
+        original_filename = file.filename
+        import uuid
+        safe_filename = f"{uuid.uuid4().hex}_{secure_filename(file.filename)}"
+        upload_dir = os.path.join('uploads', 'tasks', str(task_id))
+        os.makedirs(upload_dir, exist_ok=True)
+
+        file_path = os.path.join(upload_dir, safe_filename)
+        file.save(file_path)
+
+        file_size = os.path.getsize(file_path)
+        file_type = os.path.splitext(original_filename)[1]
+
+        attachment = TaskAttachment(
+            task_id=task_id,
+            file_name=original_filename,
+            file_path=file_path,
+            file_size=file_size,
+            file_type=file_type,
+            uploaded_by=current_user.id
+        )
+        attachment.save()
+
+        return success_response(attachment.to_dict(), message='文件上传成功')
+
+    except Exception as e:
+        return error_response(str(e), code=500, status_code=500)
+
+
+@tasks_bp.route('/<int:task_id>/attachments/<int:attachment_id>', methods=['DELETE'])
+@login_required
+def delete_attachment(task_id, attachment_id):
+    """删除任务附件"""
+    try:
+        current_user = get_current_user()
+        attachment = TaskAttachment.query.get(attachment_id)
+
+        if not attachment or attachment.task_id != task_id:
+            return error_response('附件不存在', code=404, status_code=404)
+
+        task = TaskService.get_task_by_id(task_id)
+        if not current_user.is_admin and task.current_handler_id != current_user.id:
+            return error_response('只有当前处理人或管理员可以删除附件', code=403, status_code=403)
+
+        if os.path.exists(attachment.file_path):
+            os.remove(attachment.file_path)
+
+        db.session.delete(attachment)
+        db.session.commit()
+
+        return success_response(message='附件删除成功')
+
+    except Exception as e:
+        return error_response(str(e), code=500, status_code=500)
+
+
+@tasks_bp.route('/<int:task_id>/attachments/<int:attachment_id>/download', methods=['GET'])
+@login_required
+def download_attachment(task_id, attachment_id):
+    """下载任务附件"""
+    try:
+        attachment = TaskAttachment.query.get(attachment_id)
+
+        if not attachment or attachment.task_id != task_id:
+            return error_response('附件不存在', code=404, status_code=404)
+
+        file_path = os.path.abspath(attachment.file_path)
+        if not os.path.exists(file_path):
+            return error_response('文件不存在', code=404, status_code=404)
+
+        return send_file(file_path, as_attachment=True, download_name=attachment.file_name)
+
     except Exception as e:
         return error_response(str(e), code=500, status_code=500)

@@ -3,6 +3,7 @@
 """
 from app.models.base import BaseModel
 from app import db
+from datetime import datetime, timezone
 
 
 class TaskAttachment(BaseModel):
@@ -16,6 +17,7 @@ class TaskAttachment(BaseModel):
     file_size = db.Column(db.Integer)  # 文件大小(字节)
     file_type = db.Column(db.String(50))  # 文件类型/扩展名
     uploaded_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), comment='创建时间')
 
     # 关系
     task = db.relationship('Task', backref=db.backref('attachments', lazy='dynamic'))

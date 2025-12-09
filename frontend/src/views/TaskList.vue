@@ -153,6 +153,17 @@
             <QuillEditor v-model:content="createForm.description" contentType="html" theme="snow" />
           </div>
         </el-form-item>
+
+        <el-form-item label="附件">
+          <el-upload
+            v-model:file-list="createForm.attachments"
+            :auto-upload="false"
+            multiple
+            :limit="10"
+          >
+            <el-button size="small">选择文件</el-button>
+          </el-upload>
+        </el-form-item>
       </el-form>
 
       <template #footer>
@@ -167,7 +178,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { getTasks, createTask } from '@/api/task'
+import { getTasks, createTask, uploadAttachment } from '@/api/task'
 import { getAllUsers } from '@/api/user'
 import { QuillEditor } from '@vueup/vue-quill'
 import '@vueup/vue-quill/dist/vue-quill.snow.css'
@@ -205,7 +216,8 @@ const createForm = reactive({
   description: '',
   current_handler_id: null,
   expected_start_time: null,
-  expected_end_time: null
+  expected_end_time: null,
+  attachments: []
 })
 
 // 表单验证规则
@@ -277,17 +289,28 @@ const handleCreate = async () => {
     creating.value = true
 
     const data = {
-      ...createForm,
+      title: createForm.title,
+      category: createForm.category,
+      description: createForm.description,
+      current_handler_id: createForm.current_handler_id,
       expected_start_time: createForm.expected_start_time?.toISOString(),
       expected_end_time: createForm.expected_end_time?.toISOString()
     }
 
-    await createTask(data)
+    const task = await createTask(data)
+
+    // 上传附件
+    if (createForm.attachments.length > 0) {
+      for (const fileItem of createForm.attachments) {
+        await uploadAttachment(task.id, fileItem.raw)
+      }
+    }
+
     ElMessage.success('任务创建成功')
     showCreateDialog.value = false
     loadTasks()
   } catch (error) {
-    if (error !== false) { // 排除表单验证失败
+    if (error !== false) {
       console.error('创建任务失败:', error)
       ElMessage.error('创建任务失败')
     }
@@ -305,6 +328,7 @@ const resetCreateForm = () => {
   createForm.current_handler_id = null
   createForm.expected_start_time = null
   createForm.expected_end_time = null
+  createForm.attachments = []
 }
 
 // 查看详情

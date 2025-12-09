@@ -48,6 +48,37 @@
         </el-timeline>
       </div>
 
+      <div class="task-attachments">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+          <h3 style="margin: 0;">附件</h3>
+          <el-upload
+            v-if="canEdit"
+            :show-file-list="false"
+            :before-upload="handleUpload"
+            :auto-upload="false"
+            :on-change="handleFileChange"
+          >
+            <el-button size="small" type="primary">上传附件</el-button>
+          </el-upload>
+        </div>
+        <el-table :data="attachments" style="width: 100%">
+          <el-table-column prop="file_name" label="文件名" />
+          <el-table-column prop="file_size" label="大小" width="120">
+            <template #default="scope">{{ formatFileSize(scope.row.file_size) }}</template>
+          </el-table-column>
+          <el-table-column prop="uploader_name" label="上传人" width="120" />
+          <el-table-column prop="created_at" label="上传时间" width="180">
+            <template #default="scope">{{ formatTime(scope.row.created_at) }}</template>
+          </el-table-column>
+          <el-table-column label="操作" width="150">
+            <template #default="scope">
+              <el-button size="small" type="primary" link @click="handleDownload(scope.row)">下载</el-button>
+              <el-button v-if="canEdit" size="small" type="danger" link @click="handleDeleteAttachment(scope.row)">删除</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
+
       <div class="task-comments">
         <h3>任务留言</h3>
         <div v-for="comment in comments" :key="comment.id" class="comment-item">
@@ -91,8 +122,9 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { getTaskDetail, respondTask, transferTask, suspendTask, completeTask, closeTask, getTaskTransfers, getTaskComments, createComment, updateTask } from '@/api/task'
+import { getTaskDetail, respondTask, transferTask, suspendTask, completeTask, closeTask, getTaskTransfers, getTaskComments, createComment, updateTask, getAttachments, uploadAttachment, deleteAttachment, downloadAttachment } from '@/api/task'
 import { getUsers } from '@/api/user'
+import { getToken } from '@/utils/auth'
 import { QuillEditor } from '@vueup/vue-quill'
 import '@vueup/vue-quill/dist/vue-quill.snow.css'
 
@@ -100,6 +132,7 @@ const route = useRoute()
 const task = ref(null)
 const transfers = ref([])
 const comments = ref([])
+const attachments = ref([])
 const users = ref([])
 const newComment = ref('')
 const showTransferDialog = ref(false)
@@ -149,6 +182,14 @@ const formatTime = (time) => {
   return new Date(time).toLocaleString('zh-CN')
 }
 
+const formatFileSize = (bytes) => {
+  if (!bytes) return '0 B'
+  const k = 1024
+  const sizes = ['B', 'KB', 'MB', 'GB']
+  const i = Math.floor(Math.log(bytes) / Math.log(k))
+  return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i]
+}
+
 const loadTask = async () => {
   try {
     const taskId = route.params.id
@@ -182,6 +223,15 @@ const loadUsers = async () => {
     users.value = result.users
   } catch (error) {
     ElMessage.error('加载用户列表失败')
+  }
+}
+
+const loadAttachments = async () => {
+  try {
+    const taskId = route.params.id
+    attachments.value = await getAttachments(taskId)
+  } catch (error) {
+    ElMessage.error('加载附件失败')
   }
 }
 
@@ -279,11 +329,64 @@ const saveDesc = async () => {
   }
 }
 
+const handleFileChange = async (file) => {
+  try {
+    await uploadAttachment(route.params.id, file.raw)
+    ElMessage.success('附件上传成功')
+    await loadAttachments()
+  } catch (error) {
+    ElMessage.error(error.message || '上传失败')
+  }
+}
+
+const handleUpload = () => {
+  return false
+}
+
+const handleDownload = (attachment) => {
+  const token = getToken()
+  if (!token) {
+    ElMessage.error('请先登录')
+    return
+  }
+  const baseURL = import.meta.env.VITE_API_BASE_URL || '/api'
+  const url = `${baseURL}/tasks/${route.params.id}/attachments/${attachment.id}/download`
+  fetch(url, {
+    headers: { 'Authorization': `Bearer ${token}` }
+  })
+    .then(res => {
+      if (!res.ok) {
+        return res.json().then(err => { throw new Error(err.msg || err.message || '下载失败') })
+      }
+      return res.blob()
+    })
+    .then(blob => {
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = attachment.file_name
+      a.click()
+      window.URL.revokeObjectURL(url)
+    })
+    .catch(err => ElMessage.error(err.message || '下载失败'))
+}
+
+const handleDeleteAttachment = async (attachment) => {
+  try {
+    await deleteAttachment(route.params.id, attachment.id)
+    ElMessage.success('附件删除成功')
+    await loadAttachments()
+  } catch (error) {
+    ElMessage.error(error.message || '删除失败')
+  }
+}
+
 onMounted(() => {
   loadTask()
   loadTransfers()
   loadComments()
   loadUsers()
+  loadAttachments()
 })
 </script>
 
@@ -341,6 +444,16 @@ onMounted(() => {
       color: #666;
       margin-top: 5px;
       font-size: 14px;
+    }
+  }
+
+  .task-attachments {
+    margin-bottom: 30px;
+
+    h3 {
+      color: #ff8c42;
+      margin-bottom: 15px;
+      font-size: 18px;
     }
   }
 
