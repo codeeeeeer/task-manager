@@ -15,6 +15,9 @@ chrome.runtime.onStartup.addListener(() => {
   loadConfig()
 })
 
+// Service Worker启动时立即加载配置
+loadConfig()
+
 // 从storage加载配置
 function loadConfig() {
   chrome.storage.sync.get(['serverUrl', 'umCode', 'soundEnabled'], (result) => {
@@ -24,11 +27,23 @@ function loadConfig() {
       soundEnabled: result.soundEnabled !== false
     }
 
+    console.log('Config loaded:', config)
+
     if (config.serverUrl && config.umCode) {
       connectWebSocket()
+    } else {
+      console.log('Config incomplete, please set serverUrl and umCode in options')
     }
   })
 }
+
+// 加载历史通知
+chrome.storage.local.get(['notificationHistory'], (result) => {
+  if (result.notificationHistory) {
+    notificationHistory = result.notificationHistory
+    updateUnreadCount()
+  }
+})
 
 // 轮询间隔ID
 let pollingInterval = null
@@ -45,8 +60,8 @@ function connectWebSocket() {
   // 立即执行一次
   pollNotifications()
 
-  // 每30秒轮询一次
-  pollingInterval = setInterval(pollNotifications, 30000)
+  // 每10秒轮询一次
+  pollingInterval = setInterval(pollNotifications, 10000)
 }
 
 // 轮询通知
@@ -61,15 +76,25 @@ async function pollNotifications() {
     const result = await response.json()
 
     if (result.code === 0 && result.data) {
-      // 处理新通知
-      const notifications = result.data
-      notifications.forEach(notification => {
-        // 检查是否已经处理过
-        const exists = notificationHistory.find(n => n.id === notification.id)
-        if (!exists) {
-          handleNotification(notification)
+      const pendingTasks = result.data
+      const previousHistory = [...notificationHistory]
+
+      // 更新待响应任务列表（替换而不是追加）
+      notificationHistory = pendingTasks.map(task => ({
+        ...task,
+        receivedAt: task.timestamp
+      }))
+
+      // 为新任务显示Chrome通知
+      pendingTasks.forEach(task => {
+        const existedBefore = previousHistory.find(n => n.id === task.id)
+        if (!existedBefore) {
+          showChromeNotification(task)
         }
       })
+
+      chrome.storage.local.set({ notificationHistory })
+      updateUnreadCount()
     }
 
     updateBadge('✓', '#4caf50')
@@ -79,28 +104,6 @@ async function pollNotifications() {
   }
 }
 
-// 处理通知
-function handleNotification(notification) {
-  console.log('Notification received:', notification)
-
-  // 保存到历史记录
-  notificationHistory.unshift({
-    ...notification,
-    receivedAt: new Date().toISOString()
-  })
-
-  if (notificationHistory.length > 50) {
-    notificationHistory = notificationHistory.slice(0, 50)
-  }
-
-  chrome.storage.local.set({ notificationHistory })
-
-  // 显示Chrome通知
-  showChromeNotification(notification)
-
-  // 更新badge
-  updateUnreadCount()
-}
 
 // 显示Chrome通知
 function showChromeNotification(notification) {
@@ -135,7 +138,7 @@ function updateBadge(text, color) {
 
 // 更新未读数
 function updateUnreadCount() {
-  const unreadCount = notificationHistory.filter(n => !n.read).length
+  const unreadCount = notificationHistory.length
   if (unreadCount > 0) {
     updateBadge(unreadCount.toString(), '#ff6b6b')
   } else {
@@ -147,14 +150,6 @@ function updateUnreadCount() {
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === 'GET_NOTIFICATIONS') {
     sendResponse({ notifications: notificationHistory })
-  } else if (message.type === 'MARK_AS_READ') {
-    const notification = notificationHistory.find(n => n.id === message.id)
-    if (notification) {
-      notification.read = true
-      chrome.storage.local.set({ notificationHistory })
-      updateUnreadCount()
-      sendResponse({ success: true })
-    }
   } else if (message.type === 'UPDATE_CONFIG') {
     config = message.config
     chrome.storage.sync.set(config)
@@ -164,5 +159,32 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       connected: pollingInterval !== null,
       config
     })
+  } else if (message.type === 'RESPOND_TASK') {
+    respondTask(message.taskId).then(result => {
+      sendResponse(result)
+    })
+    return true
   }
 })
+
+// 响应任务
+async function respondTask(taskId) {
+  try {
+    const response = await fetch(
+      `${config.serverUrl}/api/tasks/${taskId}/respond-by-umcode?um_code=${config.umCode}`,
+      { method: 'POST' }
+    )
+
+    const result = await response.json()
+
+    if (result.code === 0) {
+      pollNotifications()
+      return { success: true }
+    } else {
+      return { success: false, error: result.message }
+    }
+  } catch (error) {
+    console.error('响应任务失败:', error)
+    return { success: false, error: error.message }
+  }
+}

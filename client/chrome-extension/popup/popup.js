@@ -36,27 +36,27 @@ function loadNotifications() {
     const notifications = response.notifications || []
 
     if (notifications.length === 0) {
-      listEl.innerHTML = '<div class="empty">暂无通知</div>'
+      listEl.innerHTML = '<div class="empty">暂无待响应任务</div>'
       return
     }
 
-    listEl.innerHTML = notifications.slice(0, 10).map((n, index) => `
-      <div class="notification-item ${n.read ? 'read' : 'unread'}" data-index="${index}">
+    listEl.innerHTML = notifications.map((n, index) => `
+      <div class="notification-item" data-index="${index}">
         <div class="notification-header">
           <div class="notification-title">${n.title}</div>
-          ${!n.read ? `<button class="mark-read-btn" data-id="${n.id}">已阅</button>` : ''}
+          <button class="respond-btn" data-id="${n.task_id}">响应</button>
         </div>
         <div class="notification-content">${n.content}</div>
         <div class="notification-time">${formatTime(n.receivedAt || n.timestamp)}</div>
       </div>
     `).join('')
 
-    // 添加已阅按钮点击事件
-    document.querySelectorAll('.mark-read-btn').forEach(btn => {
+    // 添加响应按钮点击事件
+    document.querySelectorAll('.respond-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation()
-        const id = parseInt(btn.dataset.id)
-        markAsRead(id)
+        const taskId = parseInt(btn.dataset.id)
+        respondToTask(taskId, btn)
       })
     })
 
@@ -77,10 +77,30 @@ function loadNotifications() {
   })
 }
 
-function markAsRead(id) {
-  chrome.runtime.sendMessage({ type: 'MARK_AS_READ', id: id }, () => {
-    loadNotifications()
-  })
+
+async function respondToTask(taskId, btnElement) {
+  try {
+    btnElement.disabled = true
+    btnElement.textContent = '响应中...'
+
+    const response = await chrome.runtime.sendMessage({
+      type: 'RESPOND_TASK',
+      taskId: taskId
+    })
+
+    if (response.success) {
+      loadNotifications()
+    } else {
+      alert('响应失败: ' + (response.error || '未知错误'))
+      btnElement.disabled = false
+      btnElement.textContent = '响应'
+    }
+  } catch (error) {
+    console.error('响应任务失败:', error)
+    alert('响应失败: ' + error.message)
+    btnElement.disabled = false
+    btnElement.textContent = '响应'
+  }
 }
 
 function formatTime(isoString) {

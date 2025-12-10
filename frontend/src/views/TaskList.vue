@@ -32,6 +32,7 @@
             <el-option label="紧急任务" value="紧急任务" />
             <el-option label="其他任务" value="其他任务" />
             <el-option label="定时周期任务" value="定时周期任务" />
+            <el-option label="普通任务" value="普通任务" />
           </el-select>
         </el-form-item>
 
@@ -60,6 +61,7 @@
         <el-form-item>
           <el-button type="primary" @click="handleSearch">搜索</el-button>
           <el-button @click="handleReset">重置</el-button>
+          <el-button type="success" @click="handleMyTasks">我的任务</el-button>
         </el-form-item>
       </el-form>
     </el-card>
@@ -117,6 +119,7 @@
             <el-option label="紧急任务" value="紧急任务" />
             <el-option label="其他任务" value="其他任务" />
             <el-option label="定时周期任务" value="定时周期任务" />
+            <el-option label="普通任务" value="普通任务" />
           </el-select>
         </el-form-item>
 
@@ -185,8 +188,10 @@ import { getTasks, createTask, uploadAttachment } from '@/api/task'
 import { getAllUsers } from '@/api/user'
 import { QuillEditor } from '@vueup/vue-quill'
 import '@vueup/vue-quill/dist/vue-quill.snow.css'
+import { useAuthStore } from '@/store/auth'
 
 const router = useRouter()
+const authStore = useAuthStore()
 
 // 数据
 const tasks = ref([])
@@ -281,6 +286,17 @@ const handleReset = () => {
   filters.category = ''
   filters.creator_id = null
   filters.current_handler_id = null
+  pagination.page = 1
+  loadTasks()
+}
+
+// 我的任务
+const handleMyTasks = () => {
+  filters.search = ''
+  filters.status = ''
+  filters.category = ''
+  filters.creator_id = null
+  filters.current_handler_id = authStore.currentUserId
   pagination.page = 1
   loadTasks()
 }

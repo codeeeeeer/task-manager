@@ -139,7 +139,10 @@ def get_notifications():
 
         # 获取用户待处理的任务作为通知
         from app.models.task import Task
-        tasks = Task.query.filter_by(current_handler_id=user.id, status='待响应').order_by(Task.created_at.desc()).limit(10).all()
+        tasks = Task.query.filter(
+            Task.current_handler_id == user.id,
+            Task.status.in_(['新建', '待响应'])
+        ).order_by(Task.created_at.desc()).limit(10).all()
 
         notifications = [{
             'id': task.id,

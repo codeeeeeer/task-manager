@@ -25,6 +25,13 @@ class TaskAttachment(BaseModel):
 
     def to_dict(self):
         """转换为字典"""
+        def format_datetime(dt):
+            if not dt:
+                return None
+            if dt.tzinfo is None:
+                dt = dt.replace(tzinfo=timezone.utc)
+            return dt.isoformat()
+
         return {
             'id': self.id,
             'task_id': self.task_id,
@@ -34,5 +41,5 @@ class TaskAttachment(BaseModel):
             'file_type': self.file_type,
             'uploaded_by': self.uploaded_by,
             'uploader_name': self.uploader.name if self.uploader else None,
-            'created_at': self.created_at.isoformat() if self.created_at else None
+            'created_at': format_datetime(self.created_at)
         }

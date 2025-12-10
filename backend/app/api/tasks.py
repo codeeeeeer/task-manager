@@ -171,6 +171,31 @@ def respond_task(task_id):
         return error_response(str(e), code=500, status_code=500)
 
 
+@tasks_bp.route('/<int:task_id>/respond-by-umcode', methods=['POST'])
+def respond_task_by_umcode(task_id):
+    """响应任务（供Chrome插件使用）"""
+    try:
+        from app.services.user_service import UserService
+        um_code = request.args.get('um_code')
+        if not um_code:
+            return error_response('缺少um_code参数')
+
+        user = UserService.get_user_by_um_code(um_code)
+        if not user:
+            return error_response('用户不存在', code=404, status_code=404)
+
+        task = TaskService.respond_task(task_id, user.id)
+
+        return success_response(task.to_dict(), message='任务已响应')
+
+    except PermissionError as e:
+        return error_response(str(e), code=403, status_code=403)
+    except ValueError as e:
+        return error_response(str(e))
+    except Exception as e:
+        return error_response(str(e), code=500, status_code=500)
+
+
 @tasks_bp.route('/<int:task_id>/complete', methods=['POST'])
 @login_required
 def complete_task(task_id):
@@ -412,6 +437,7 @@ def download_client():
     try:
         import zipfile
         import tempfile
+        import shutil
         from pathlib import Path
 
         # Chrome插件源码路径
@@ -420,14 +446,36 @@ def download_client():
         if not client_path.exists():
             return error_response('客户端文件不存在', code=404, status_code=404)
 
+        # 创建临时目录
+        temp_dir = tempfile.mkdtemp()
+        temp_client_path = Path(temp_dir) / 'chrome-extension'
+
+        # 复制插件文件到临时目��
+        shutil.copytree(client_path, temp_client_path)
+
+        # 获取服务器地址（从请求头或配置中）
+        server_url = request.host_url.rstrip('/')
+
+        # 创建配置文件
+        config_content = f"""// 自动生成的配置文件
+const AUTO_CONFIG = {{
+  serverUrl: '{server_url}'
+}};
+"""
+        config_file = temp_client_path / 'auto-config.js'
+        config_file.write_text(config_content, encoding='utf-8')
+
         # 创建临时zip文件
         temp_zip = tempfile.NamedTemporaryFile(delete=False, suffix='.zip')
 
         with zipfile.ZipFile(temp_zip.name, 'w', zipfile.ZIP_DEFLATED) as zipf:
-            for file_path in client_path.rglob('*'):
+            for file_path in temp_client_path.rglob('*'):
                 if file_path.is_file():
-                    arcname = file_path.relative_to(client_path.parent)
+                    arcname = file_path.relative_to(temp_client_path.parent)
                     zipf.write(file_path, arcname)
+
+        # 清理临时目录
+        shutil.rmtree(temp_dir)
 
         return send_file(temp_zip.name, as_attachment=True, download_name='task-manager-chrome-extension.zip')
 

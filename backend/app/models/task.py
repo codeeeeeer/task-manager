@@ -37,7 +37,7 @@ class Task(BaseModel):
     __table_args__ = (
         db.CheckConstraint('progress >= 0 AND progress <= 100', name='check_progress_range'),
         db.CheckConstraint('time_progress >= 0 AND time_progress <= 100', name='check_time_progress_range'),
-        db.CheckConstraint("category IN ('版本任务', '紧急任务', '其他任务', '定时周期任务')", name='check_category'),
+        db.CheckConstraint("category IN ('版本任务', '紧急任务', '其他任务', '定时周期任务', '普通任务')", name='check_category'),
     )
 
     def calculate_time_progress(self):
@@ -69,6 +69,14 @@ class Task(BaseModel):
         """转换为字典"""
         from app.models.user import User
 
+        def format_datetime(dt):
+            """格式化datetime为ISO字符串，确保带UTC时区信息"""
+            if not dt:
+                return None
+            if dt.tzinfo is None:
+                dt = dt.replace(tzinfo=timezone.utc)
+            return dt.isoformat()
+
         result = {
             'id': self.id,
             'title': self.title,
@@ -80,17 +88,17 @@ class Task(BaseModel):
             'creator_name': self.creator.name if self.creator else None,
             'current_handler_id': self.current_handler_id,
             'current_handler_name': self.current_handler.name if self.current_handler else None,
-            'expected_start_time': self.expected_start_time.isoformat() if self.expected_start_time else None,
-            'expected_end_time': self.expected_end_time.isoformat() if self.expected_end_time else None,
-            'created_at': self.created_at.isoformat() if self.created_at else None,
-            'updated_at': self.updated_at.isoformat() if self.updated_at else None,
+            'expected_start_time': format_datetime(self.expected_start_time),
+            'expected_end_time': format_datetime(self.expected_end_time),
+            'created_at': format_datetime(self.created_at),
+            'updated_at': format_datetime(self.updated_at),
         }
 
         if include_details:
             result.update({
                 'description': self.description,
-                'actual_start_time': self.actual_start_time.isoformat() if self.actual_start_time else None,
-                'actual_end_time': self.actual_end_time.isoformat() if self.actual_end_time else None,
+                'actual_start_time': format_datetime(self.actual_start_time),
+                'actual_end_time': format_datetime(self.actual_end_time),
             })
 
         return result

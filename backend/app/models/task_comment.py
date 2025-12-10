@@ -23,14 +23,21 @@ class TaskComment(BaseModel):
 
     def to_dict(self):
         """转换为字典"""
+        def format_datetime(dt):
+            if not dt:
+                return None
+            if dt.tzinfo is None:
+                dt = dt.replace(tzinfo=timezone.utc)
+            return dt.isoformat()
+
         return {
             'id': self.id,
             'task_id': self.task_id,
             'user_id': self.user_id,
             'user_name': self.user.name if self.user else None,
             'content': self.content,
-            'created_at': self.created_at.isoformat() if self.created_at else None,
-            'updated_at': self.updated_at.isoformat() if self.updated_at else None,
+            'created_at': format_datetime(self.created_at),
+            'updated_at': format_datetime(self.updated_at),
             'is_deleted': self.is_deleted
         }
 

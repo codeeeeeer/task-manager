@@ -24,6 +24,7 @@ class TaskService:
     CATEGORY_URGENT = '紧急任务'
     CATEGORY_OTHER = '其他任务'
     CATEGORY_PERIODIC = '定时周期任务'
+    CATEGORY_NORMAL = '普通任务'
 
     @staticmethod
     def create_task(title, category, description, creator_id, current_handler_id,

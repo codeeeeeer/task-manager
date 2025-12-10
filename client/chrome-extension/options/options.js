@@ -9,7 +9,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function loadConfig() {
   chrome.storage.sync.get(['serverUrl', 'umCode', 'soundEnabled'], (result) => {
-    document.getElementById('serverUrl').value = result.serverUrl || ''
+    // 如果没有配置过服务器地址，尝试使用自动配置
+    let serverUrl = result.serverUrl || ''
+    if (!serverUrl && typeof AUTO_CONFIG !== 'undefined' && AUTO_CONFIG.serverUrl) {
+      serverUrl = AUTO_CONFIG.serverUrl
+      // ��动保存到storage
+      chrome.storage.sync.set({ serverUrl })
+    }
+
+    document.getElementById('serverUrl').value = serverUrl
     document.getElementById('umCode').value = result.umCode || ''
     document.getElementById('soundEnabled').checked = result.soundEnabled !== false
   })
