@@ -89,7 +89,11 @@ async function respondToTask(taskId, btnElement) {
     })
 
     if (response.success) {
-      loadNotifications()
+      chrome.storage.sync.get(['serverUrl'], (result) => {
+        if (result.serverUrl) {
+          chrome.tabs.create({ url: `${result.serverUrl}/#/tasks/${taskId}` })
+        }
+      })
     } else {
       alert('响应失败: ' + (response.error || '未知错误'))
       btnElement.disabled = false
