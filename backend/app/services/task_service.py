@@ -6,6 +6,7 @@ from app.models.task import Task
 from app.models.user import User
 from app.models.task_transfer import TaskTransfer
 from datetime import datetime, timezone
+from sqlalchemy.orm import joinedload
 
 
 class TaskService:
@@ -247,7 +248,12 @@ class TaskService:
         query = query.order_by(Task.created_at.desc())
 
         total = query.count()
-        tasks = query.offset((page - 1) * per_page).limit(per_page).all()
+
+        # 使用 joinedload 预加载关联的 creator 和 current_handler，避免 N+1 查询问题
+        tasks = query.options(
+            joinedload(Task.creator),
+            joinedload(Task.current_handler)
+        ).offset((page - 1) * per_page).limit(per_page).all()
 
         return {
             'tasks': [task.to_dict() for task in tasks],
