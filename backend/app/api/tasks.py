@@ -481,3 +481,39 @@ const AUTO_CONFIG = {{
 
     except Exception as e:
         return error_response(str(e), code=500, status_code=500)
+
+
+@tasks_bp.route('/statistics', methods=['GET'])
+@login_required
+def get_statistics():
+    """获取任务统计数据"""
+    try:
+        stats = TaskService.get_statistics_from_cache()
+        return success_response(stats)
+    except Exception as e:
+        return error_response(str(e), code=500, status_code=500)
+
+
+@tasks_bp.route('/my-pending', methods=['GET'])
+@login_required
+def get_my_pending():
+    """获取我的待办任务"""
+    try:
+        current_user = get_current_user()
+        limit = request.args.get('limit', 10, type=int)
+        tasks = TaskService.get_my_pending_tasks(current_user.id, limit)
+        return success_response(tasks)
+    except Exception as e:
+        return error_response(str(e), code=500, status_code=500)
+
+
+@tasks_bp.route('/urgent', methods=['GET'])
+@login_required
+def get_urgent():
+    """获取紧急任务列表"""
+    try:
+        hours = request.args.get('hours', 24, type=int)
+        tasks = TaskService.get_urgent_tasks(hours)
+        return success_response(tasks)
+    except Exception as e:
+        return error_response(str(e), code=500, status_code=500)

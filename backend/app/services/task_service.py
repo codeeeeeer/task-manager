@@ -66,6 +66,13 @@ class TaskService:
             transfer_type='创建'
         )
         db.session.add(transfer)
+
+        # 更新统计
+        try:
+            TaskService.update_statistics_on_create(task)
+        except Exception as e:
+            print(f'更新统计失败: {str(e)}')
+
         db.session.commit()
 
         return task
@@ -92,6 +99,9 @@ class TaskService:
         if not operator.is_admin and task.current_handler_id != operator_id:
             raise PermissionError("只有当前处理人或管理员可以流转任务")
 
+        # 保存旧状态
+        old_status = task.status
+
         # 更新任务
         task.current_handler_id = target_user_id
         task.status = TaskService.STATUS_PENDING
@@ -105,6 +115,13 @@ class TaskService:
             transfer_type='流转'
         )
         db.session.add(transfer)
+
+        # 更新统计
+        try:
+            TaskService.update_statistics_on_update(old_status, task.status)
+        except Exception as e:
+            print(f'更新统计失败: {str(e)}')
+
         db.session.commit()
 
         return task
@@ -122,6 +139,7 @@ class TaskService:
         if task.status not in [TaskService.STATUS_NEW, TaskService.STATUS_PENDING, TaskService.STATUS_SUSPENDED]:
             raise ValueError(f"任务当前状态({task.status})不允许响应")
 
+        old_status = task.status
         task.status = TaskService.STATUS_PROCESSING
         if not task.actual_start_time:
             task.actual_start_time = datetime.now(timezone.utc)
@@ -135,6 +153,13 @@ class TaskService:
             transfer_type='响应'
         )
         db.session.add(transfer)
+
+        # 更新统计
+        try:
+            TaskService.update_statistics_on_update(old_status, task.status)
+        except Exception as e:
+            print(f'更新统计失败: {str(e)}')
+
         db.session.commit()
 
         return task
@@ -150,6 +175,7 @@ class TaskService:
         if not user.is_admin and task.current_handler_id != user_id:
             raise PermissionError("只有当前处理人或管理员可以完成任务")
 
+        old_status = task.status
         task.status = TaskService.STATUS_COMPLETED
         task.progress = 100
         task.actual_end_time = datetime.now(timezone.utc)
@@ -162,6 +188,13 @@ class TaskService:
             transfer_type='完成'
         )
         db.session.add(transfer)
+
+        # 更新统计
+        try:
+            TaskService.update_statistics_on_update(old_status, task.status)
+        except Exception as e:
+            print(f'更新统计失败: {str(e)}')
+
         db.session.commit()
 
         return task
@@ -180,6 +213,7 @@ class TaskService:
         if task.status != TaskService.STATUS_PROCESSING:
             raise ValueError(f"任务当前状态({task.status})不允许挂起")
 
+        old_status = task.status
         task.status = TaskService.STATUS_SUSPENDED
 
         transfer = TaskTransfer(
@@ -190,6 +224,13 @@ class TaskService:
             transfer_type='挂起'
         )
         db.session.add(transfer)
+
+        # 更新统计
+        try:
+            TaskService.update_statistics_on_update(old_status, task.status)
+        except Exception as e:
+            print(f'更新统计失败: {str(e)}')
+
         db.session.commit()
 
         return task
@@ -205,6 +246,7 @@ class TaskService:
         if not user.is_admin and task.current_handler_id != user_id:
             raise PermissionError("只有当前处理人或管理员可以关闭任务")
 
+        old_status = task.status
         task.status = TaskService.STATUS_CLOSED
         if not task.actual_end_time:
             task.actual_end_time = datetime.now(timezone.utc)
@@ -217,6 +259,13 @@ class TaskService:
             transfer_type='关闭'
         )
         db.session.add(transfer)
+
+        # 更新统计
+        try:
+            TaskService.update_statistics_on_update(old_status, task.status)
+        except Exception as e:
+            print(f'更新统计失败: {str(e)}')
+
         db.session.commit()
 
         return task
@@ -261,3 +310,171 @@ class TaskService:
             'page': page,
             'per_page': per_page
         }
+
+    @staticmethod
+    def calculate_full_statistics():
+        """执行全量统计"""
+        from app.models.task_statistics import TaskStatistics
+        from sqlalchemy import func
+
+        # 统计总任务数
+        total_count = Task.query.count()
+        TaskStatistics.set_stat('overview', 'total', {'count': total_count})
+
+        # 统计各状态任务数
+        status_stats = db.session.query(
+            Task.status, func.count(Task.id)
+        ).group_by(Task.status).all()
+
+        for status, count in status_stats:
+            TaskStatistics.set_stat('status_distribution', status, {'count': count})
+
+        # 统计各分类任务数
+        category_stats = db.session.query(
+            Task.category, func.count(Task.id)
+        ).group_by(Task.category).all()
+
+        for category, count in category_stats:
+            TaskStatistics.set_stat('category_distribution', category, {'count': count})
+
+        db.session.commit()
+
+    @staticmethod
+    def update_statistics_on_create(task):
+        """任务创建时增量更新统计"""
+        from app.models.task_statistics import TaskStatistics
+
+        # 更新总数
+        total_stat = TaskStatistics.get_stat('overview', 'total') or {'count': 0}
+        total_stat['count'] += 1
+        TaskStatistics.set_stat('overview', 'total', total_stat)
+
+        # 更新状态统计
+        status_stat = TaskStatistics.get_stat('status_distribution', task.status) or {'count': 0}
+        status_stat['count'] += 1
+        TaskStatistics.set_stat('status_distribution', task.status, status_stat)
+
+        # 更新分类统计
+        category_stat = TaskStatistics.get_stat('category_distribution', task.category) or {'count': 0}
+        category_stat['count'] += 1
+        TaskStatistics.set_stat('category_distribution', task.category, category_stat)
+
+    @staticmethod
+    def update_statistics_on_update(old_status, new_status):
+        """任务状态更新时增量更新统计"""
+        from app.models.task_statistics import TaskStatistics
+
+        if old_status != new_status:
+            # 旧状态-1
+            old_stat = TaskStatistics.get_stat('status_distribution', old_status) or {'count': 0}
+            old_stat['count'] = max(0, old_stat['count'] - 1)
+            TaskStatistics.set_stat('status_distribution', old_status, old_stat)
+
+            # 新状态+1
+            new_stat = TaskStatistics.get_stat('status_distribution', new_status) or {'count': 0}
+            new_stat['count'] += 1
+            TaskStatistics.set_stat('status_distribution', new_status, new_stat)
+
+    @staticmethod
+    def update_statistics_on_delete(task):
+        """任务删除时增量更新统计"""
+        from app.models.task_statistics import TaskStatistics
+
+        # 更新总数
+        total_stat = TaskStatistics.get_stat('overview', 'total') or {'count': 0}
+        total_stat['count'] = max(0, total_stat['count'] - 1)
+        TaskStatistics.set_stat('overview', 'total', total_stat)
+
+        # 更新状态统计
+        status_stat = TaskStatistics.get_stat('status_distribution', task.status) or {'count': 0}
+        status_stat['count'] = max(0, status_stat['count'] - 1)
+        TaskStatistics.set_stat('status_distribution', task.status, status_stat)
+
+        # 更新分类统计
+        category_stat = TaskStatistics.get_stat('category_distribution', task.category) or {'count': 0}
+        category_stat['count'] = max(0, category_stat['count'] - 1)
+        TaskStatistics.set_stat('category_distribution', task.category, category_stat)
+
+    @staticmethod
+    def get_statistics_from_cache():
+        """从统计表读取数据"""
+        from app.models.task_statistics import TaskStatistics
+
+        # 获取总数
+        total_stat = TaskStatistics.get_stat('overview', 'total') or {'count': 0}
+
+        # 获取各状态统计
+        statuses = [TaskService.STATUS_NEW, TaskService.STATUS_PENDING, TaskService.STATUS_PROCESSING,
+                   TaskService.STATUS_SUSPENDED, TaskService.STATUS_COMPLETED, TaskService.STATUS_CLOSED]
+        status_stats = {}
+        for status in statuses:
+            stat = TaskStatistics.get_stat('status_distribution', status) or {'count': 0}
+            status_stats[status] = stat['count']
+
+        # 获取各分类统计
+        categories = [TaskService.CATEGORY_VERSION, TaskService.CATEGORY_URGENT, TaskService.CATEGORY_NORMAL,
+                     TaskService.CATEGORY_PERIODIC, TaskService.CATEGORY_OTHER]
+        category_stats = {}
+        for category in categories:
+            stat = TaskStatistics.get_stat('category_distribution', category) or {'count': 0}
+            category_stats[category] = stat['count']
+
+        # 获取最后更新时间
+        from app.models.task_statistics import TaskStatistics as TSModel
+        last_update = TSModel.query.order_by(TSModel.updated_at.desc()).first()
+        updated_at = last_update.updated_at.isoformat() if last_update else None
+
+        return {
+            'total': total_stat['count'],
+            'status_distribution': status_stats,
+            'category_distribution': category_stats,
+            'updated_at': updated_at
+        }
+
+    @staticmethod
+    def get_my_pending_tasks(user_id, limit=10):
+        """获取用户待办任务"""
+        tasks = Task.query.filter(
+            Task.current_handler_id == user_id,
+            Task.status.in_([TaskService.STATUS_PENDING, TaskService.STATUS_PROCESSING])
+        ).options(
+            joinedload(Task.creator),
+            joinedload(Task.current_handler)
+        ).order_by(Task.created_at.desc()).limit(limit).all()
+
+        return [task.to_dict() for task in tasks]
+
+    @staticmethod
+    def get_urgent_tasks(hours=24):
+        """获取紧急任务列表"""
+        from datetime import timedelta
+
+        now = datetime.now(timezone.utc)
+        threshold = now + timedelta(hours=hours)
+
+        # 查询即将到期或已逾期的任务
+        tasks = Task.query.filter(
+            Task.expected_end_time.isnot(None),
+            Task.expected_end_time <= threshold,
+            Task.status.in_([TaskService.STATUS_NEW, TaskService.STATUS_PENDING,
+                           TaskService.STATUS_PROCESSING, TaskService.STATUS_SUSPENDED])
+        ).options(
+            joinedload(Task.creator),
+            joinedload(Task.current_handler)
+        ).order_by(Task.expected_end_time.asc()).all()
+
+        # 添加紧急程度标识
+        result = []
+        for task in tasks:
+            task_dict = task.to_dict()
+            # 确保时间对象带时区信息
+            end_time = task.expected_end_time.replace(tzinfo=timezone.utc) if task.expected_end_time.tzinfo is None else task.expected_end_time
+            if end_time < now:
+                task_dict['urgency'] = 'overdue'
+                task_dict['overdue_days'] = (now - end_time).days
+            else:
+                task_dict['urgency'] = 'upcoming'
+                task_dict['remaining_hours'] = int((end_time - now).total_seconds() / 3600)
+            result.append(task_dict)
+
+        return result

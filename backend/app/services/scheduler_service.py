@@ -155,6 +155,19 @@ class SchedulerService:
         return days_since_completion >= 7
 
 
+    @staticmethod
+    def calculate_task_statistics():
+        """计算任务统计数据"""
+        from app.services.task_service import TaskService
+
+        print(f'[{datetime.now()}] 开始计算任务统计')
+        try:
+            TaskService.calculate_full_statistics()
+            print(f'[{datetime.now()}] 任务统计计算完成')
+        except Exception as e:
+            print(f'计算任务统计失败: {str(e)}')
+
+
 def init_scheduler():
     """初始化定时任务"""
 
@@ -183,6 +196,15 @@ def init_scheduler():
         hour=2,
         minute=0,
         id='reset_periodic_tasks',
+        replace_existing=True
+    )
+
+    # 4. 任务统计计算 - 每5分钟执行一次
+    scheduler.add_job(
+        func=SchedulerService.calculate_task_statistics,
+        trigger='interval',
+        minutes=5,
+        id='calculate_task_statistics',
         replace_existing=True
     )
 

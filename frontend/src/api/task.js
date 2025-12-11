@@ -120,3 +120,26 @@ export function deleteAttachment(taskId, attachmentId) {
 export function downloadAttachment(taskId, attachmentId) {
   return `/api/tasks/${taskId}/attachments/${attachmentId}/download`
 }
+
+export function getTaskStatistics() {
+  return request({
+    url: '/tasks/statistics',
+    method: 'get'
+  })
+}
+
+export function getMyPendingTasks(limit = 10) {
+  return request({
+    url: '/tasks/my-pending',
+    method: 'get',
+    params: { limit }
+  })
+}
+
+export function getUrgentTasks(hours = 24) {
+  return request({
+    url: '/tasks/urgent',
+    method: 'get',
+    params: { hours }
+  })
+}
