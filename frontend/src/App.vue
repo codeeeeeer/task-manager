@@ -5,11 +5,16 @@
 <script setup>
 import { onMounted } from 'vue'
 import { useAuthStore } from '@/store/auth'
+import { useThemeStore } from '@/store/theme'
 import websocketClient from '@/utils/websocket'
 
 const authStore = useAuthStore()
+const themeStore = useThemeStore()
 
 onMounted(() => {
+  // 初始化主题
+  themeStore.initTheme()
+
   // 如果已登录，连接WebSocket
   if (authStore.isLoggedIn) {
     websocketClient.connect()

@@ -5,6 +5,9 @@
         <div class="header-content">
           <h1>任务分发工具</h1>
           <div class="user-info">
+            <el-button @click="toggleTheme" size="small" class="theme-btn">
+              {{ themeStore.currentTheme === 'light' ? '🌙 高科技' : '☀️ 默认' }}
+            </el-button>
             <span>{{ userInfo?.name }}</span>
             <el-button @click="handleLogout" type="danger" size="small">退出</el-button>
           </div>
@@ -39,11 +42,13 @@
 import { computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/store/auth'
+import { useThemeStore } from '@/store/theme'
 import { HomeFilled, List, User } from '@element-plus/icons-vue'
 
 const router = useRouter()
 const route = useRoute()
 const authStore = useAuthStore()
+const themeStore = useThemeStore()
 
 const userInfo = computed(() => authStore.userInfo)
 const currentRoute = computed(() => route.path)
@@ -52,6 +57,10 @@ const handleLogout = () => {
   authStore.logout()
   router.push('/login')
 }
+
+const toggleTheme = () => {
+  themeStore.toggleTheme()
+}
 </script>
 
 <style scoped lang="scss">
@@ -59,8 +68,8 @@ const handleLogout = () => {
   height: 100vh;
 
   .el-header {
-    background-color: #ff6b6b;
-    color: white;
+    background-color: var(--color-bg-header);
+    color: var(--color-text-header);
     display: flex;
     align-items: center;
 
@@ -79,17 +88,27 @@ const handleLogout = () => {
         display: flex;
         align-items: center;
         gap: 10px;
+
+        .theme-btn {
+          background-color: rgba(255, 255, 255, 0.2);
+          border: 1px solid rgba(255, 255, 255, 0.3);
+          color: var(--color-text-header);
+
+          &:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+          }
+        }
       }
     }
   }
 
   .el-aside {
-    background-color: #fff;
-    border-right: 1px solid #eee;
+    background-color: var(--color-bg-sidebar);
+    border-right: 1px solid var(--color-border);
   }
 
   .el-main {
-    background-color: #fff5f5;
+    background-color: var(--color-bg-body);
   }
 }
 </style>
