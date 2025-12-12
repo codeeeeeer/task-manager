@@ -239,7 +239,7 @@ onUnmounted(() => {
   :deep(.el-card__header) {
     font-weight: 600;
     font-size: 15px;
-    color: #303133;
+    color: var(--color-text-primary);
   }
 }
 
@@ -249,12 +249,17 @@ onUnmounted(() => {
     .stat-value {
       font-size: 32px;
       font-weight: bold;
-      color: #409EFF;
+      color: var(--color-primary);
       margin-bottom: 8px;
+
+      // 高科技主题发光效果
+      .theme-tech & {
+        text-shadow: 0 0 15px rgba(6, 182, 212, 0.5);
+      }
     }
     .stat-label {
       font-size: 14px;
-      color: #606266;
+      color: var(--color-text-secondary);
       font-weight: 500;
     }
   }
@@ -266,12 +271,20 @@ onUnmounted(() => {
 
   .task-item {
     padding: 12px;
-    border-bottom: 1px solid #ebeef5;
+    border-bottom: 1px solid var(--color-border);
     cursor: pointer;
     transition: background-color 0.3s;
 
     &:hover {
-      background-color: #f5f7fa;
+      // 默认主题
+      .theme-light & {
+        background-color: #F3F4F6;
+      }
+
+      // 高科技主题
+      .theme-tech & {
+        background-color: rgba(6, 182, 212, 0.05);
+      }
     }
 
     &:last-child {
@@ -284,7 +297,7 @@ onUnmounted(() => {
       display: flex;
       align-items: center;
       gap: 4px;
-      color: #303133;
+      color: var(--color-text-primary);
       font-weight: 500;
     }
 
@@ -294,7 +307,16 @@ onUnmounted(() => {
     }
 
     &.urgent {
-      border-left: 3px solid #f56c6c;
+      // 默认主题
+      .theme-light & {
+        border-left: 3px solid #f56c6c;
+      }
+
+      // 高科技主题
+      .theme-tech & {
+        border-left: 3px solid var(--color-danger);
+        box-shadow: inset 3px 0 10px rgba(244, 63, 94, 0.3);
+      }
     }
   }
 }

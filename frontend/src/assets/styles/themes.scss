@@ -2,70 +2,249 @@
 
 // 默认主题（浅色）
 .theme-light {
-  --color-primary: #ff6b6b;
-  --color-bg-body: #fff5f5;
-  --color-bg-container: #ffffff;
-  --color-bg-header: #ff6b6b;
-  --color-bg-sidebar: #ffffff;
-  --color-text-primary: #333333;
-  --color-text-secondary: #666666;
-  --color-text-header: #ffffff;
-  --color-border: #eeeeee;
-  --color-hover: #ff8787;
+  --color-primary: #3B82F6;
+  --color-bg-body: #F3F4F6;
+  --color-bg-container: #FFFFFF;
+  --color-bg-header: #FFFFFF;
+  --color-bg-sidebar: #FFFFFF;
+  --color-text-primary: #111827;
+  --color-text-secondary: #374151;
+  --color-text-tertiary: #6B7280;
+  --color-text-header: #111827;
+  --color-border: #E5E7EB;
+  --color-hover: #2563EB;
   --color-shadow: rgba(0, 0, 0, 0.1);
+
+  // Element Plus 组件样式覆盖
+  .el-card {
+    background-color: #FFFFFF;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+    &:hover {
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+  }
+
+  .el-button {
+    border-radius: 6px;
+
+    &.el-button--primary {
+      --el-button-bg-color: var(--color-primary);
+      --el-button-text-color: #FFFFFF;
+      --el-button-border-color: var(--color-primary);
+      --el-button-hover-bg-color: var(--color-hover);
+      --el-button-hover-border-color: var(--color-hover);
+    }
+
+    &.el-button--default {
+      --el-button-bg-color: #FFFFFF;
+      --el-button-text-color: var(--color-text-secondary);
+      --el-button-border-color: #D1D5DB;
+      --el-button-hover-text-color: var(--color-primary);
+      --el-button-hover-border-color: var(--color-primary);
+    }
+  }
+
+  .el-table {
+    --el-table-bg-color: #FFFFFF;
+    --el-table-tr-bg-color: #FFFFFF;
+    --el-table-header-bg-color: #F9FAFB;
+    --el-table-row-hover-bg-color: #F3F4F6;
+    --el-table-border-color: var(--color-border);
+    --el-table-text-color: var(--color-text-secondary);
+    --el-table-header-text-color: var(--color-text-primary);
+
+    .el-table__header th {
+      font-weight: bold;
+    }
+  }
+
+  .el-input {
+    --el-input-bg-color: #FFFFFF;
+    --el-input-border-color: #D1D5DB;
+    --el-input-text-color: var(--color-text-primary);
+    --el-input-hover-border-color: var(--color-primary);
+    --el-input-focus-border-color: var(--color-primary);
+
+    .el-input__wrapper {
+      &:focus, &.is-focus {
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      }
+    }
+  }
+
+  .el-select {
+    .el-input__wrapper {
+      background-color: #FFFFFF;
+    }
+  }
+
+  .el-select-dropdown {
+    background-color: #FFFFFF !important;
+    border: 1px solid var(--color-border) !important;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+  }
+
+  .el-select-dropdown__item {
+    &:hover {
+      background-color: #F3F4F6 !important;
+    }
+
+    &.is-selected {
+      background-color: #EFF6FF !important;
+      color: var(--color-primary) !important;
+    }
+  }
+
+  .el-textarea {
+    --el-input-bg-color: #FFFFFF;
+    --el-input-border-color: #D1D5DB;
+    --el-input-text-color: var(--color-text-primary);
+
+    .el-textarea__inner {
+      &:focus {
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      }
+    }
+  }
+
+  .el-dialog {
+    --el-dialog-bg-color: #FFFFFF;
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+
+    .el-dialog__header {
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .el-dialog__title {
+      color: var(--color-text-primary);
+      font-weight: bold;
+    }
+
+    .el-dialog__body {
+      color: var(--color-text-secondary);
+    }
+  }
+
+  .el-message-box {
+    background-color: #FFFFFF;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+
+    .el-message-box__title {
+      color: var(--color-text-primary);
+    }
+
+    .el-message-box__content {
+      color: var(--color-text-secondary);
+    }
+  }
+
+  .el-loading-mask {
+    background-color: rgba(255, 255, 255, 0.8);
+  }
+
+  .el-loading-spinner .circular {
+    stroke: var(--color-primary);
+  }
+
+  .el-skeleton {
+    --el-skeleton-color: #E5E7EB;
+    --el-skeleton-to-color: #F3F4F6;
+  }
+
+  .el-tag {
+    border-radius: 4px;
+  }
+
+  .el-link {
+    --el-link-text-color: var(--color-primary);
+    --el-link-hover-text-color: var(--color-hover);
+  }
 }
 
 // 高科技主题（深色）
 .theme-tech {
-  --color-primary: #00ffff;
-  --color-bg-body: #0a0e27;
-  --color-bg-container: #1a1f3a;
-  --color-bg-header: #0d1128;
-  --color-bg-sidebar: #151a30;
-  --color-text-primary: #e0e0e0;
-  --color-text-secondary: #a0a0a0;
-  --color-text-header: #00ffff;
-  --color-border: #2a3f5f;
-  --color-hover: #00cccc;
-  --color-shadow: rgba(0, 255, 255, 0.2);
+  --color-primary: #06B6D4;
+  --color-secondary: #8B5CF6;
+  --color-danger: #F43F5E;
+  --color-bg-body: #0B1120;
+  --color-bg-container: #1E293B;
+  --color-bg-header: #0B1120;
+  --color-bg-sidebar: #1E293B;
+  --color-text-primary: #F8FAFC;
+  --color-text-secondary: #CBD5E1;
+  --color-text-header: #06B6D4;
+  --color-text-highlight: #06B6D4;
+  --color-border: #334155;
+  --color-border-glow: rgba(6, 182, 212, 0.3);
+  --color-hover: #22D3EE;
+  --color-shadow: rgba(6, 182, 212, 0.2);
 
   // 高科技特效
-  --glow-color: #00ffff;
-  --glow-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+  --glow-color: #06B6D4;
+  --glow-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
 
   // Element Plus 组件样式覆盖
   .el-card {
-    background-color: var(--color-bg-container);
+    background-color: rgba(30, 41, 59, 0.8);
     border: 1px solid var(--color-border);
-    box-shadow: 0 0 15px rgba(0, 255, 255, 0.1);
+    border-radius: 4px;
+    box-shadow: 0 0 15px rgba(6, 182, 212, 0.2);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+
+    &:hover {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 20px rgba(6, 182, 212, 0.4);
+    }
+  }
+
+  @supports not (backdrop-filter: blur(10px)) {
+    .el-card {
+      background-color: var(--color-bg-container);
+    }
   }
 
   .el-table {
     --el-table-bg-color: var(--color-bg-container);
     --el-table-tr-bg-color: var(--color-bg-container);
     --el-table-header-bg-color: #0d1128;
-    --el-table-row-hover-bg-color: rgba(0, 255, 255, 0.05);
+    --el-table-row-hover-bg-color: rgba(6, 182, 212, 0.05);
     --el-table-border-color: var(--color-border);
-    --el-table-text-color: var(--color-text-primary);
+    --el-table-text-color: var(--color-text-secondary);
     --el-table-header-text-color: var(--color-primary);
     border: 1px solid var(--color-border);
-    box-shadow: 0 0 15px rgba(0, 255, 255, 0.1);
+    box-shadow: 0 0 15px rgba(6, 182, 212, 0.1);
+
+    .el-table__header th {
+      border-bottom: 2px solid var(--color-primary);
+      font-weight: bold;
+    }
   }
 
   .el-button {
-    --el-button-bg-color: transparent;
+    --el-button-bg-color: rgba(6, 182, 212, 0.2);
     --el-button-border-color: var(--color-primary);
     --el-button-text-color: var(--color-primary);
-    --el-button-hover-bg-color: rgba(0, 255, 255, 0.1);
+    --el-button-hover-bg-color: rgba(6, 182, 212, 0.3);
     --el-button-hover-border-color: var(--color-hover);
     --el-button-hover-text-color: var(--color-hover);
-    box-shadow: 0 0 5px rgba(0, 255, 255, 0.3);
+    border-radius: 4px;
+    box-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
+
+    &:hover {
+      box-shadow: 0 0 15px rgba(6, 182, 212, 0.7);
+    }
 
     &.el-button--primary {
-      --el-button-bg-color: rgba(0, 255, 255, 0.2);
+      --el-button-bg-color: rgba(6, 182, 212, 0.2);
       --el-button-border-color: var(--color-primary);
       --el-button-text-color: var(--color-primary);
-      box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+      box-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
     }
 
     &.el-button--success {
@@ -76,22 +255,26 @@
     }
 
     &.el-button--danger {
-      --el-button-bg-color: rgba(255, 0, 100, 0.2);
-      --el-button-border-color: #ff0064;
-      --el-button-text-color: #ff0064;
-      box-shadow: 0 0 10px rgba(255, 0, 100, 0.5);
+      --el-button-bg-color: rgba(244, 63, 94, 0.2);
+      --el-button-border-color: var(--color-danger);
+      --el-button-text-color: var(--color-danger);
+      box-shadow: 0 0 10px rgba(244, 63, 94, 0.5);
     }
   }
 
   .el-input {
-    --el-input-bg-color: rgba(0, 0, 0, 0.3);
+    --el-input-bg-color: #0F172A;
     --el-input-border-color: var(--color-border);
-    --el-input-text-color: var(--color-text-primary);
+    --el-input-text-color: var(--color-text-secondary);
     --el-input-hover-border-color: var(--color-primary);
     --el-input-focus-border-color: var(--color-primary);
 
     .el-input__wrapper {
-      box-shadow: 0 0 5px rgba(0, 255, 255, 0.2);
+      box-shadow: 0 0 5px rgba(6, 182, 212, 0.2);
+
+      &:focus, &.is-focus {
+        box-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
+      }
     }
   }
 
@@ -99,38 +282,38 @@
     --el-select-input-focus-border-color: var(--color-primary);
 
     .el-input__wrapper {
-      background-color: rgba(0, 0, 0, 0.3);
-      box-shadow: 0 0 5px rgba(0, 255, 255, 0.2);
+      background-color: #0F172A;
+      box-shadow: 0 0 5px rgba(6, 182, 212, 0.2);
     }
 
     .el-input__inner {
-      color: var(--color-text-primary);
+      color: var(--color-text-secondary);
     }
   }
 
   .el-select-dropdown {
     background-color: #1a1f3a !important;
     border: 1px solid #2a3f5f !important;
-    box-shadow: 0 0 15px rgba(0, 255, 255, 0.3) !important;
+    box-shadow: 0 0 15px rgba(6, 182, 212, 0.3) !important;
   }
 
   .el-select-dropdown__item {
-    color: #e0e0e0 !important;
+    color: var(--color-text-secondary) !important;
 
     &:hover {
-      background-color: rgba(0, 255, 255, 0.1) !important;
+      background-color: rgba(6, 182, 212, 0.1) !important;
     }
 
     &.is-selected {
-      background-color: rgba(0, 255, 255, 0.2) !important;
-      color: #00ffff !important;
+      background-color: rgba(6, 182, 212, 0.2) !important;
+      color: var(--color-primary) !important;
     }
   }
 
   .el-popper {
     background-color: #1a1f3a !important;
     border: 1px solid #2a3f5f !important;
-    box-shadow: 0 0 15px rgba(0, 255, 255, 0.3) !important;
+    box-shadow: 0 0 15px rgba(6, 182, 212, 0.3) !important;
   }
 
   .el-select-dropdown__list {
@@ -138,20 +321,20 @@
   }
 
   .el-select-dropdown__empty {
-    color: #a0a0a0 !important;
+    color: var(--color-text-secondary) !important;
   }
 
   .el-tag {
-    --el-tag-bg-color: rgba(0, 255, 255, 0.1);
+    --el-tag-bg-color: rgba(6, 182, 212, 0.1);
     --el-tag-border-color: var(--color-primary);
     --el-tag-text-color: var(--color-primary);
-    box-shadow: 0 0 5px rgba(0, 255, 255, 0.3);
+    box-shadow: 0 0 5px rgba(6, 182, 212, 0.3);
   }
 
   .el-link {
     --el-link-text-color: var(--color-primary);
     --el-link-hover-text-color: var(--color-hover);
-    text-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+    text-shadow: 0 0 5px rgba(6, 182, 212, 0.5);
   }
 
   .el-pagination {
@@ -167,13 +350,13 @@
       &:hover {
         color: var(--color-primary);
         border-color: var(--color-primary);
-        box-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+        box-shadow: 0 0 5px rgba(6, 182, 212, 0.5);
       }
 
       &.is-active {
         color: var(--color-primary);
         border-color: var(--color-primary);
-        box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+        box-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
       }
     }
   }
@@ -191,15 +374,15 @@
     color: var(--color-text-primary);
 
     &:hover {
-      background-color: rgba(0, 255, 255, 0.1);
+      background-color: rgba(6, 182, 212, 0.1);
       color: var(--color-primary);
     }
 
     &.is-active {
-      background-color: rgba(0, 255, 255, 0.15);
+      background-color: rgba(6, 182, 212, 0.15);
       color: var(--color-primary);
       border-right: 2px solid var(--color-primary);
-      box-shadow: inset 0 0 10px rgba(0, 255, 255, 0.3);
+      box-shadow: inset 0 0 10px rgba(6, 182, 212, 0.3);
     }
   }
 
@@ -207,7 +390,7 @@
     --el-dialog-bg-color: var(--color-bg-container);
     --el-dialog-border-color: var(--color-border);
     border: 1px solid var(--color-border);
-    box-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
+    box-shadow: 0 0 30px rgba(6, 182, 212, 0.3);
 
     .el-dialog__header {
       border-bottom: 1px solid var(--color-border);
@@ -215,30 +398,31 @@
 
     .el-dialog__title {
       color: var(--color-primary);
-      text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+      text-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
     }
 
     .el-dialog__body {
-      color: var(--color-text-primary);
+      color: var(--color-text-secondary);
     }
   }
 
   .el-message-box {
     background-color: var(--color-bg-container);
     border: 1px solid var(--color-border);
-    box-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
+    box-shadow: 0 0 30px rgba(6, 182, 212, 0.3);
 
     .el-message-box__title {
       color: var(--color-primary);
+      text-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
     }
 
     .el-message-box__content {
-      color: var(--color-text-primary);
+      color: var(--color-text-secondary);
     }
   }
 
   .el-loading-mask {
-    background-color: rgba(10, 14, 39, 0.8);
+    background-color: rgba(11, 17, 32, 0.8);
   }
 
   .el-loading-spinner .circular {
@@ -248,7 +432,7 @@
 
   h1, h2, h3, h4, h5, h6 {
     color: var(--color-primary);
-    text-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+    text-shadow: 0 0 10px rgba(6, 182, 212, 0.3);
   }
 
   .el-descriptions {
@@ -285,7 +469,7 @@
 
     .el-timeline-item__node {
       background-color: var(--color-primary);
-      box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+      box-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
     }
 
     .el-timeline-item__tail {
@@ -293,56 +477,56 @@
     }
 
     .el-timeline-item__wrapper {
-      color: var(--color-text-primary);
+      color: var(--color-text-secondary);
     }
   }
 
   .el-slider {
     --el-slider-main-bg-color: var(--color-primary);
-    --el-slider-runway-bg-color: rgba(0, 0, 0, 0.3);
+    --el-slider-runway-bg-color: #0F172A;
     --el-slider-button-wrapper-bg-color: var(--color-primary);
 
     .el-slider__button {
       border-color: var(--color-primary);
-      box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+      box-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
     }
   }
 
   .el-textarea {
-    --el-input-bg-color: rgba(0, 0, 0, 0.3);
+    --el-input-bg-color: #0F172A;
     --el-input-border-color: var(--color-border);
-    --el-input-text-color: var(--color-text-primary);
+    --el-input-text-color: var(--color-text-secondary);
 
     .el-textarea__inner {
-      background-color: rgba(0, 0, 0, 0.3);
+      background-color: #0F172A;
       border-color: var(--color-border);
-      color: var(--color-text-primary);
-      box-shadow: 0 0 5px rgba(0, 255, 255, 0.2);
+      color: var(--color-text-secondary);
+      box-shadow: 0 0 5px rgba(6, 182, 212, 0.2);
 
       &:focus {
         border-color: var(--color-primary);
-        box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+        box-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
       }
     }
   }
 
   .el-skeleton {
-    --el-skeleton-color: rgba(0, 255, 255, 0.1);
-    --el-skeleton-to-color: rgba(0, 255, 255, 0.2);
+    --el-skeleton-color: rgba(6, 182, 212, 0.1);
+    --el-skeleton-to-color: rgba(6, 182, 212, 0.2);
   }
 
   .task-detail {
     .description-content {
-      background: rgba(0, 0, 0, 0.3) !important;
+      background: #0F172A !important;
       border: 1px solid var(--color-border);
-      color: var(--color-text-primary);
-      box-shadow: 0 0 10px rgba(0, 255, 255, 0.1);
+      color: var(--color-text-secondary);
+      box-shadow: 0 0 10px rgba(6, 182, 212, 0.1);
     }
 
     .comment-item {
-      background: rgba(0, 0, 0, 0.3) !important;
+      background: #0F172A !important;
       border: 1px solid var(--color-border);
-      box-shadow: 0 0 10px rgba(0, 255, 255, 0.1);
+      box-shadow: 0 0 10px rgba(6, 182, 212, 0.1);
 
       .comment-header {
         strong {
@@ -355,7 +539,7 @@
       }
 
       .comment-content {
-        color: var(--color-text-primary);
+        color: var(--color-text-secondary);
       }
     }
 
@@ -365,29 +549,29 @@
   }
 
   .ql-toolbar {
-    background-color: rgba(0, 0, 0, 0.3);
+    background-color: #0F172A;
     border-color: var(--color-border) !important;
 
     .ql-stroke {
-      stroke: var(--color-text-primary);
+      stroke: var(--color-text-secondary);
     }
 
     .ql-fill {
-      fill: var(--color-text-primary);
+      fill: var(--color-text-secondary);
     }
 
     .ql-picker-label {
-      color: var(--color-text-primary);
+      color: var(--color-text-secondary);
     }
   }
 
   .ql-container {
-    background-color: rgba(0, 0, 0, 0.3);
+    background-color: #0F172A;
     border-color: var(--color-border) !important;
-    color: var(--color-text-primary);
+    color: var(--color-text-secondary);
 
     .ql-editor {
-      color: var(--color-text-primary);
+      color: var(--color-text-secondary);
 
       &.ql-blank::before {
         color: var(--color-text-secondary);
@@ -400,4 +584,12 @@
       background-color: var(--color-bg-container);
     }
   }
+}
+
+// 主题切换过渡效果
+* {
+  transition: background-color 0.3s ease-in-out,
+              color 0.3s ease-in-out,
+              border-color 0.3s ease-in-out,
+              box-shadow 0.3s ease-in-out;
 }
