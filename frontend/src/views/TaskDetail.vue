@@ -447,8 +447,6 @@ onMounted(() => {
 
     .description-content {
       padding: 15px;
-      background: #fff5f0;
-      border-radius: 4px;
       line-height: 1.6;
       min-height: 100px;
     }
@@ -493,8 +491,6 @@ onMounted(() => {
 
     .comment-item {
       padding: 15px;
-      background: #fff5f0;
-      border-radius: 4px;
       margin-bottom: 15px;
 
       .comment-header {

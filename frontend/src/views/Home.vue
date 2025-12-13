@@ -239,7 +239,7 @@ onUnmounted(() => {
   :deep(.el-card__header) {
     font-weight: 600;
     font-size: 15px;
-    color: var(--color-text-primary);
+    color: var(--el-text-color-primary);
   }
 }
 
@@ -249,7 +249,7 @@ onUnmounted(() => {
     .stat-value {
       font-size: 32px;
       font-weight: bold;
-      color: var(--color-primary);
+      color: var(--el-color-primary);
       margin-bottom: 8px;
 
       // 高科技主题发光效果
@@ -259,7 +259,7 @@ onUnmounted(() => {
     }
     .stat-label {
       font-size: 14px;
-      color: var(--color-text-secondary);
+      color: var(--el-text-color-secondary);
       font-weight: 500;
     }
   }
@@ -271,7 +271,7 @@ onUnmounted(() => {
 
   .task-item {
     padding: 12px;
-    border-bottom: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--el-border-color);
     cursor: pointer;
     transition: background-color 0.3s;
 
@@ -297,7 +297,7 @@ onUnmounted(() => {
       display: flex;
       align-items: center;
       gap: 4px;
-      color: var(--color-text-primary);
+      color: var(--el-text-color-primary);
       font-weight: 500;
     }
 
@@ -314,7 +314,7 @@ onUnmounted(() => {
 
       // 高科技主题
       .theme-tech & {
-        border-left: 3px solid var(--color-danger);
+        border-left: 3px solid var(--el-color-danger);
         box-shadow: inset 3px 0 10px rgba(244, 63, 94, 0.3);
       }
     }

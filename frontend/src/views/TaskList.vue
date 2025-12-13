@@ -412,9 +412,6 @@ onMounted(() => {
   }
 
   .filter-card {
-    background: #fff9f0;
-    border: 1px solid #ffd6a5;
-
     :deep(.el-card__body) {
       padding: 15px;
     }

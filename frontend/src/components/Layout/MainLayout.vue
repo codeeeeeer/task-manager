@@ -68,10 +68,11 @@ const toggleTheme = () => {
   height: 100vh;
 
   .el-header {
-    background-color: var(--color-bg-header);
-    color: var(--color-text-header);
+    background-color: var(--el-bg-color-overlay);
+    color: var(--el-text-color-primary);
     display: flex;
     align-items: center;
+    border-bottom: 1px solid var(--el-border-color);
 
     .header-content {
       width: 100%;
@@ -92,7 +93,7 @@ const toggleTheme = () => {
         .theme-btn {
           background-color: rgba(255, 255, 255, 0.2);
           border: 1px solid rgba(255, 255, 255, 0.3);
-          color: var(--color-text-header);
+          color: var(--el-text-color-primary);
 
           &:hover {
             background-color: rgba(255, 255, 255, 0.3);
@@ -103,12 +104,12 @@ const toggleTheme = () => {
   }
 
   .el-aside {
-    background-color: var(--color-bg-sidebar);
-    border-right: 1px solid var(--color-border);
+    background-color: var(--el-bg-color-overlay);
+    border-right: 1px solid var(--el-border-color);
   }
 
   .el-main {
-    background-color: var(--color-bg-body);
+    background-color: var(--el-bg-color);
   }
 }
 </style>
