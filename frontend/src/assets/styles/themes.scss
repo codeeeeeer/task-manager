@@ -91,6 +91,12 @@ html.theme-tech {
   --el-border-color-light: rgba(6, 182, 212, 0.1);
   --el-border-color-lighter: rgba(6, 182, 212, 0.05);
 
+  /* Element Plus fill tokens 覆盖 */
+  --el-fill-color-blank: rgba(15, 23, 42, 0.6);
+  --el-input-bg-color: rgba(15, 23, 42, 0.6);
+  --el-select-dropdown-bg-color: #1a1f3a;
+  --el-select-option-hover-bg-color: rgba(6, 182, 212, 0.1);
+
   /* 自定义业务变量 - 覆盖 */
   --app-card-radius: 2px;
   --app-shadow: 0 0 15px rgba(6, 182, 212, 0.15);
@@ -198,6 +204,25 @@ html.theme-tech {
     &.is-focus {
       box-shadow: 0 0 0 1px var(--el-color-primary) inset, 0 0 10px rgba(6, 182, 212, 0.2);
     }
+
+    &.is-disabled {
+      background-color: rgba(15, 23, 42, 0.3);
+      color: var(--el-text-color-secondary);
+    }
+
+    .el-input__inner {
+      color: var(--el-text-color-regular);
+      background-color: transparent !important;
+
+      &::placeholder {
+        color: var(--el-text-color-secondary);
+      }
+    }
+
+    .el-input__suffix,
+    .el-input__prefix {
+      color: var(--el-text-color-secondary);
+    }
   }
 
   /* 5. Tag/Badge - 荧光效果 */
@@ -232,6 +257,14 @@ html.theme-tech {
       background-color: rgba(15, 23, 42, 0.6) !important;
       box-shadow: 0 0 0 1px var(--el-border-color) inset !important;
       border-radius: 0 !important;
+
+      &.is-focus {
+        box-shadow: 0 0 0 1px var(--el-color-primary) inset, 0 0 10px rgba(6, 182, 212, 0.2) !important;
+      }
+
+      &.is-disabled {
+        background-color: rgba(15, 23, 42, 0.3) !important;
+      }
     }
 
     .el-input__inner {
@@ -243,8 +276,13 @@ html.theme-tech {
       }
     }
 
-    .el-select__caret {
+    .el-select__caret,
+    .el-input__suffix-inner {
       color: var(--el-text-color-secondary) !important;
+    }
+
+    .el-select__suffix {
+      background-color: transparent !important;
     }
   }
 
@@ -257,10 +295,15 @@ html.theme-tech {
     background-color: #1a1f3a !important;
     border: 1px solid rgba(6, 182, 212, 0.3) !important;
     box-shadow: 0 0 15px rgba(6, 182, 212, 0.3) !important;
+
+    .el-select-dropdown__wrap {
+      background-color: transparent !important;
+    }
   }
 
   .el-select-dropdown__item {
     color: var(--el-text-color-regular) !important;
+    background-color: transparent !important;
 
     &:hover {
       background-color: rgba(6, 182, 212, 0.1) !important;
@@ -269,6 +312,11 @@ html.theme-tech {
     &.is-selected {
       background-color: rgba(6, 182, 212, 0.2) !important;
       color: var(--el-color-primary) !important;
+      box-shadow: 0 0 10px rgba(6, 182, 212, 0.2) inset;
+    }
+
+    &.is-hovering {
+      background-color: rgba(6, 182, 212, 0.1) !important;
     }
   }
 

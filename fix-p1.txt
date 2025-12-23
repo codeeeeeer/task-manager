@@ -1,0 +1,11 @@
+Fix Plan
+
+  - frontend/src/assets/styles/themes.scss:66 already defines the high-tech theme token block. Extend it by overriding Element Plus
+    fill tokens (--el-fill-color-blank, --el-input-bg-color, --el-select-dropdown-bg-color, --el-select-option-hover-bg-color) with
+  - In the same file around line 190, strengthen the selector rules for .theme-tech .el-input__wrapper and .theme-tech .el-
+    select .el-input__wrapper. Keep the translucent背景 and inset霓虹描边, but also add explicit rules for .is-focus, .is-
+    disabled, .el-input__suffix, .el-select__caret, and placeholder colors so the filter栏里的 clearable / caret icons follow the
+    high-tech palette even when Element Plus internally re-renders the wrapper component.
+  - Still in themes.scss (~line 250), ensure the .el-select-dropdown and .el-select-dropdown__item overrides match the same色值/发光
+    效果, giving hover (rgba(6, 182, 212, 0.1)) and selected (0 0 10px neon) states. This keeps the弹层 consistent with cards/
+    buttons per the spec.
