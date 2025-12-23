@@ -9,7 +9,7 @@ from app import create_app, socketio
 load_dotenv()
 
 # 创建应用实例
-app = create_app(os.getenv('FLASK_ENV', 'development'))
+app = create_app(os.getenv('FLASK_ENV', 'production'))
 
 
 if __name__ == '__main__':

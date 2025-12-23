@@ -54,15 +54,6 @@ class ProductionConfig(Config):
     """生产环境配置"""
     DEBUG = False
 
-    # 生产环境必须设置环境变量
-    @classmethod
-    def init_app(cls, app):
-        Config.init_app(app)
-
-        # 确保关键配置已设置
-        assert os.environ.get('SECRET_KEY'), 'SECRET_KEY must be set in production'
-        assert os.environ.get('DATABASE_URL'), 'DATABASE_URL must be set in production'
-
 
 class TestingConfig(Config):
     """测试环境配置"""

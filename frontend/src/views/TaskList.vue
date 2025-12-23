@@ -4,6 +4,7 @@
       <h2>任务列表</h2>
       <div>
         <el-button type="success" @click="downloadClient">下载Chrome插件</el-button>
+        <el-button type="warning" @click="exportTasks">导出任务</el-button>
         <el-button type="primary" @click="showCreateDialog = true">新建任务</el-button>
       </div>
     </div>
@@ -387,6 +388,41 @@ const getStatusType = (status) => {
 const downloadClient = () => {
   const baseURL = import.meta.env.VITE_API_BASE_URL || '/api'
   window.open(`${baseURL}/tasks/download-client`, '_blank')
+}
+
+// 导出任务
+const exportTasks = () => {
+  if (tasks.value.length === 0) {
+    ElMessage.warning('当前没有可导出的任务')
+    return
+  }
+
+  const headers = ['ID', '任务标题', '任务分类', '状态', '创建人', '当前处理人', '创建时间']
+  const csvContent = [
+    headers.join(','),
+    ...tasks.value.map(task => [
+      task.id,
+      `"${task.title.replace(/"/g, '""')}"`,
+      task.category,
+      task.status,
+      task.creator_name || '-',
+      task.current_handler_name || '-',
+      formatDate(task.created_at)
+    ].join(','))
+  ].join('\n')
+
+  const BOM = '\uFEFF'
+  const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' })
+  const link = document.createElement('a')
+  const url = URL.createObjectURL(blob)
+  link.setAttribute('href', url)
+  link.setAttribute('download', `任务列表_${new Date().toISOString().slice(0, 10)}.csv`)
+  link.style.visibility = 'hidden'
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+
+  ElMessage.success('任务导出成功')
 }
 
 onMounted(() => {
