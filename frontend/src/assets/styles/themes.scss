@@ -177,6 +177,18 @@ html.theme-tech {
     box-shadow: 0 0 8px rgba(244, 63, 94, 0.4);
   }
 
+  .el-button--default {
+    background-color: rgba(15, 23, 42, 0.6);
+    border: 1px solid var(--el-border-color);
+    color: var(--el-text-color-primary);
+
+    &:hover {
+      border-color: var(--el-color-primary);
+      color: var(--el-color-primary);
+      box-shadow: 0 0 8px rgba(6, 182, 212, 0.4);
+    }
+  }
+
   /* 4. 输入框 (El-Input) - 科技线框 */
   .el-input__wrapper {
     background-color: rgba(15, 23, 42, 0.6);
@@ -215,14 +227,35 @@ html.theme-tech {
 
   /* 6. 下拉框和选择器 */
   .el-select {
+    .el-input .el-input__wrapper,
     .el-input__wrapper {
-      background-color: rgba(15, 23, 42, 0.6);
+      background-color: rgba(15, 23, 42, 0.6) !important;
+      box-shadow: 0 0 0 1px var(--el-border-color) inset !important;
+      border-radius: 0 !important;
     }
+
+    .el-input__inner {
+      color: var(--el-text-color-regular) !important;
+      background-color: transparent !important;
+
+      &::placeholder {
+        color: var(--el-text-color-secondary) !important;
+      }
+    }
+
+    .el-select__caret {
+      color: var(--el-text-color-secondary) !important;
+    }
+  }
+
+  /* 全局输入框包装器覆盖 */
+  .el-input .el-input__wrapper {
+    background-color: rgba(15, 23, 42, 0.6) !important;
   }
 
   .el-select-dropdown {
     background-color: #1a1f3a !important;
-    border: 1px solid #2a3f5f !important;
+    border: 1px solid rgba(6, 182, 212, 0.3) !important;
     box-shadow: 0 0 15px rgba(6, 182, 212, 0.3) !important;
   }
 
@@ -334,6 +367,17 @@ html.theme-tech {
         border-color: var(--el-color-primary);
         box-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
       }
+    }
+
+    .el-pagination__sizes .el-input__wrapper,
+    .el-pagination__jump .el-input__wrapper {
+      background-color: rgba(15, 23, 42, 0.6) !important;
+      box-shadow: 0 0 0 1px var(--el-border-color) inset !important;
+    }
+
+    .el-pagination__total,
+    .el-pagination__jump {
+      color: var(--el-text-color-regular);
     }
   }
 
@@ -487,8 +531,97 @@ html.theme-tech {
   /* 22. Popper 弹出层 */
   .el-popper {
     background-color: #1a1f3a !important;
-    border: 1px solid #2a3f5f !important;
+    border: 1px solid rgba(6, 182, 212, 0.3) !important;
     box-shadow: 0 0 15px rgba(6, 182, 212, 0.3) !important;
+  }
+
+  /* 23. 日期选择器 */
+  .el-date-editor {
+    .el-input__wrapper {
+      background-color: rgba(15, 23, 42, 0.6) !important;
+      box-shadow: 0 0 0 1px var(--el-border-color) inset !important;
+    }
+
+    .el-input__inner {
+      color: var(--el-text-color-regular) !important;
+    }
+
+    .el-input__prefix, .el-input__suffix {
+      color: var(--el-text-color-secondary) !important;
+    }
+  }
+
+  .el-picker__popper {
+    background-color: #1a1f3a !important;
+    border: 1px solid rgba(6, 182, 212, 0.3) !important;
+    box-shadow: 0 0 15px rgba(6, 182, 212, 0.3) !important;
+
+    .el-picker-panel {
+      background-color: #1a1f3a !important;
+      color: var(--el-text-color-regular) !important;
+    }
+
+    .el-date-picker__header {
+      color: var(--el-color-primary) !important;
+
+      .el-date-picker__header-label {
+        color: var(--el-color-primary) !important;
+
+        &:hover {
+          color: #22d3ee !important;
+        }
+      }
+
+      .el-picker-panel__icon-btn {
+        color: var(--el-text-color-secondary) !important;
+
+        &:hover {
+          color: var(--el-color-primary) !important;
+        }
+      }
+    }
+
+    .el-date-table th {
+      color: var(--el-text-color-secondary) !important;
+      border-bottom: 1px solid var(--el-border-color) !important;
+    }
+
+    .el-date-table td {
+      .el-date-table-cell {
+        color: var(--el-text-color-regular) !important;
+      }
+
+      &.today .el-date-table-cell__text {
+        color: var(--el-color-primary) !important;
+      }
+
+      &.current .el-date-table-cell__text {
+        background-color: var(--el-color-primary) !important;
+        color: #fff !important;
+        box-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
+      }
+
+      &:hover .el-date-table-cell {
+        background-color: rgba(6, 182, 212, 0.1) !important;
+      }
+    }
+
+    .el-time-spinner__item {
+      color: var(--el-text-color-regular) !important;
+
+      &:hover {
+        background-color: rgba(6, 182, 212, 0.1) !important;
+      }
+
+      &.is-active {
+        color: var(--el-color-primary) !important;
+      }
+    }
+
+    .el-picker-panel__footer {
+      border-top: 1px solid var(--el-border-color) !important;
+      background-color: #1a1f3a !important;
+    }
   }
 }
 
