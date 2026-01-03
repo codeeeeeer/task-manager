@@ -433,45 +433,111 @@ onMounted(() => {
 
 <style scoped lang="scss">
 .task-list {
-  padding: 20px;
+  padding: 0;
 
   .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: 24px;
 
     h2 {
-      color: #ff6b6b;
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--el-text-color-primary);
       margin: 0;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 12px;
     }
   }
 
   .filter-card {
+    margin-bottom: 20px;
+
     :deep(.el-card__body) {
-      padding: 15px;
+      padding: 20px;
     }
 
     .filter-form {
       :deep(.el-form-item) {
-        margin-bottom: 10px;
+        margin-bottom: 12px;
+        margin-right: 16px;
+      }
+
+      :deep(.el-form-item__label) {
+        font-weight: 500;
       }
     }
   }
 
   :deep(.el-table) {
+    border-radius: var(--app-card-radius);
+    overflow: hidden;
+
     .el-link {
       font-weight: 500;
+    }
+
+    .el-table__header th {
+      font-weight: 600;
+      background: var(--el-bg-color-page);
     }
   }
 
   :deep(.el-pagination) {
     display: flex;
+    padding: 16px 0;
   }
 
-  :deep(.el-dialog__body) {
-    .ql-editor {
-      min-height: 200px;
+  :deep(.el-dialog) {
+    border-radius: var(--app-card-radius);
+
+    .el-dialog__header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--el-border-color-light);
+    }
+
+    .el-dialog__body {
+      padding: 24px;
+
+      .ql-editor {
+        min-height: 200px;
+      }
+    }
+
+    .el-dialog__footer {
+      padding: 16px 24px;
+      border-top: 1px solid var(--el-border-color-light);
+    }
+  }
+}
+
+// 高科技主题
+:global(html.theme-tech) {
+  .task-list {
+    .header h2 {
+      font-family: var(--app-font-mono);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      text-shadow: 0 0 15px rgba(6, 182, 212, 0.4);
+    }
+
+    :deep(.el-table) {
+      border-radius: 0;
+
+      .el-table__header th {
+        font-family: var(--app-font-mono);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 12px;
+      }
+    }
+
+    :deep(.el-dialog) {
+      border-radius: 0;
     }
   }
 }

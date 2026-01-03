@@ -419,36 +419,44 @@ onMounted(() => {
 
 <style scoped lang="scss">
 .task-detail {
-  padding: 20px;
+  padding: 0;
 
   h2 {
-    color: #ff6b6b;
-    margin-bottom: 20px;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--el-text-color-primary);
+    margin-bottom: 24px;
   }
 
   .action-buttons {
-    margin-bottom: 20px;
+    margin-bottom: 24px;
     display: flex;
-    gap: 10px;
+    gap: 12px;
+    flex-wrap: wrap;
   }
 
   .task-info {
-    margin-bottom: 30px;
+    margin-bottom: 32px;
   }
 
   .task-description {
-    margin-bottom: 30px;
+    margin-bottom: 32px;
 
     h3 {
-      color: #ff8c42;
-      margin-bottom: 15px;
-      font-size: 18px;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--el-text-color-primary);
+      margin-bottom: 16px;
     }
 
     .description-content {
-      padding: 15px;
-      line-height: 1.6;
-      min-height: 100px;
+      padding: 20px;
+      line-height: 1.8;
+      min-height: 120px;
+      background: var(--el-bg-color-page);
+      border-radius: var(--app-card-radius);
+      border: 1px solid var(--el-border-color-light);
+      color: var(--el-text-color-regular);
     }
 
     :deep(.ql-container) {
@@ -457,49 +465,63 @@ onMounted(() => {
   }
 
   .task-transfers {
-    margin-bottom: 30px;
+    margin-bottom: 32px;
 
     h3 {
-      color: #ff8c42;
-      margin-bottom: 15px;
-      font-size: 18px;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--el-text-color-primary);
+      margin-bottom: 16px;
     }
 
     .transfer-message {
-      color: #666;
-      margin-top: 5px;
-      font-size: 14px;
+      color: var(--el-text-color-secondary);
+      margin-top: 8px;
+      font-size: 13px;
+      padding-left: 12px;
+      border-left: 2px solid var(--el-border-color);
     }
   }
 
   .task-attachments {
-    margin-bottom: 30px;
+    margin-bottom: 32px;
 
     h3 {
-      color: #ff8c42;
-      margin-bottom: 15px;
-      font-size: 18px;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--el-text-color-primary);
+      margin-bottom: 16px;
     }
   }
 
   .task-comments {
     h3 {
-      color: #ff8c42;
-      margin-bottom: 15px;
-      font-size: 18px;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--el-text-color-primary);
+      margin-bottom: 16px;
     }
 
     .comment-item {
-      padding: 15px;
-      margin-bottom: 15px;
+      padding: 16px 20px;
+      margin-bottom: 12px;
+      background: var(--el-bg-color-page);
+      border-radius: var(--app-card-radius);
+      border: 1px solid var(--el-border-color-light);
 
       .comment-header {
         display: flex;
         justify-content: space-between;
-        margin-bottom: 10px;
+        align-items: center;
+        margin-bottom: 12px;
+
+        strong {
+          color: var(--el-color-primary);
+          font-weight: 600;
+        }
 
         .comment-time {
-          color: #999;
+          color: var(--el-text-color-secondary);
           font-size: 12px;
         }
       }
@@ -507,6 +529,7 @@ onMounted(() => {
       .comment-content {
         line-height: 1.6;
         white-space: pre-wrap;
+        color: var(--el-text-color-regular);
       }
     }
 
@@ -514,8 +537,46 @@ onMounted(() => {
       margin-top: 20px;
 
       .el-button {
-        margin-top: 10px;
+        margin-top: 12px;
       }
+    }
+  }
+}
+
+// 高科技主题
+:global(html.theme-tech) {
+  .task-detail {
+    h2 {
+      font-family: var(--app-font-mono);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      text-shadow: 0 0 15px rgba(6, 182, 212, 0.4);
+    }
+
+    h3 {
+      font-family: var(--app-font-mono);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .description-content {
+      background: rgba(15, 23, 42, 0.6);
+      border-radius: 0;
+      border-color: var(--el-border-color);
+    }
+
+    .comment-item {
+      background: rgba(15, 23, 42, 0.6);
+      border-radius: 0;
+      border-color: var(--el-border-color);
+
+      .comment-header strong {
+        text-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
+      }
+    }
+
+    .transfer-message {
+      border-left-color: var(--el-color-primary);
     }
   }
 }
